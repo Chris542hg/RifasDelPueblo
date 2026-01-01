@@ -40,14 +40,19 @@
             transition: all 0.3s;
         }
 
-        /* FOCO DE LUZ */
+        /* FOCO DE LUZ - CORREGIDO PARA MANTENER DISEÑO AZUL */
         .foco-activo { 
             position: relative !important; 
             z-index: 8500 !important; 
-            background: white !important;
-            box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.85), 0 0 40px rgba(59, 130, 246, 1) !important;
+            box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.85), 0 0 40px rgba(59, 130, 246, 0.5) !important;
             pointer-events: auto !important;
             opacity: 1 !important;
+        }
+
+        /* DISEÑO ESPECÍFICO DEL BOTÓN PARA QUE NO PIERDA COLOR */
+        #btn-registrar.foco-activo {
+            background-color: #2563eb !important; /* Azul Rey original */
+            color: white !important;
         }
 
         /* GRID */
@@ -72,6 +77,14 @@
 
         .seleccionado { background: #1d4ed8 !important; color: white !important; border: none; }
         .ocupado { background: #f8fafc !important; color: #cbd5e1 !important; cursor: not-allowed; }
+
+        /* BOTÓN CERRAR (X) */
+        #btn-cerrar-guia {
+            position: absolute; top: 10px; right: 15px;
+            font-size: 20px; color: #94a3b8; cursor: pointer;
+            transition: color 0.3s; z-index: 10;
+        }
+        #btn-cerrar-guia:hover { color: #ef4444; }
     </style>
 </head>
 <body>
@@ -81,6 +94,8 @@
     <div id="asistente-maya" class="pos-centro">
         <img src="asist.png" alt="Asistente" class="maya-img">
         <div class="bg-white p-6 rounded-[30px] border-4 border-blue-600 shadow-2xl mb-4 text-center w-full relative">
+            <div id="btn-cerrar-guia" onclick="saltarGuia()"><i class="fas fa-times"></i></div>
+
             <p id="texto-asistente" class="text-sm font-black text-slate-800 leading-tight mb-4">¡Hola! Soy tu asistente.<br>¿En qué idioma te ayudo?</p>
             
             <div id="selector-idioma" class="flex flex-col gap-2">
@@ -136,19 +151,20 @@
         
         let lang = 'es'; let paso = 0; let elegido = null;
 
-        const traduccion = {
-            es: { tit: "¡Gánate un SMART TV 50´´ <br><span class='text-blue-600'>FULL HD GRATIS!</span>", del: "del", pablo: "Pueblo", reg: "Registrar mi número", guia: ["Busca si tu número está libre.", "Toca tu número de la suerte aquí abajo.", "Ahora presiona 'Registrar Número'.", "Escribe tu nombre completo.", "¡Listo! Te envío a Messenger."] },
-            maya: { tit: "¡Náajalt untúul SMART TV 50´´ <br><span class='text-blue-600'>MA' BO'OTIK!</span>", del: "ti'", pablo: "Kaaj", reg: "Ts'íib k'áaba' xook", guia: ["Kaxt a xook tial a wilik wa yan.", "Bejla’e’ mach untúul xook.", "Mach 'Ts'íib k'áaba' xook'.", "T'aan a k'áaba'.", "Ma'alob! Xeen Facebook."] }
-        };
+        function saltarGuia() {
+            document.getElementById('guia-overlay').style.display = "none";
+            document.getElementById('asistente-maya').style.display = "none";
+            // Limpiar cualquier resaltado activo
+            document.getElementById('area-buscador').classList.remove('foco-activo');
+            document.getElementById('area-grid').classList.remove('foco-activo');
+            document.getElementById('btn-registrar').classList.remove('foco-activo');
+            document.getElementById('btn-registrar').style.opacity = "1";
+        }
 
         function iniciar(l) {
             lang = l;
             document.getElementById('selector-idioma').classList.add('hidden');
             document.getElementById('btn-next').classList.remove('hidden');
-            document.getElementById('titulo-principal').innerHTML = traduccion[lang].tit;
-            document.getElementById('txt-del').innerText = traduccion[lang].del;
-            document.getElementById('txt-pueblo').innerText = traduccion[lang].pablo;
-            document.getElementById('btn-registrar').innerText = traduccion[lang].reg;
             proximoPaso();
         }
 
@@ -163,7 +179,7 @@
                 document.getElementById('asistente-maya').className = "pos-guia-top";
                 document.getElementById('area-grid').classList.add('foco-activo');
             }
-            document.getElementById('texto-asistente').innerText = traduccion[lang].guia[paso];
+            document.getElementById('texto-asistente').innerText = paso === 0 ? "Busca si tu número está libre." : "Toca tu número de la suerte aquí abajo.";
             paso++;
         }
 
@@ -189,12 +205,13 @@
             document.getElementById('asistente-maya').className = "fixed bottom-32 left-1/2 -translate-x-1/2 scale-75";
             document.getElementById('btn-registrar').classList.add('foco-activo');
             document.getElementById('btn-next').classList.add('hidden');
+            document.getElementById('texto-asistente').innerText = "¡Excelente! Ahora presiona Registrar.";
         }
 
         function pedirNombre() {
             document.getElementById('guia-overlay').style.display = "block";
             document.getElementById('asistente-maya').className = "pos-centro";
-            document.getElementById('texto-asistente').innerText = traduccion[lang].guia[3];
+            document.getElementById('texto-asistente').innerText = "Escribe tu nombre completo.";
             document.getElementById('form-nombre').classList.remove('hidden');
         }
 
@@ -204,9 +221,9 @@
             document.getElementById('btn-confirmar').innerText = "...";
             try {
                 await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ numeros: [elegido], nombre: nombre }) });
-                document.getElementById('texto-asistente').innerText = traduccion[lang].guia[4];
+                document.getElementById('texto-asistente').innerText = "¡Listo! Te envío a Messenger.";
                 setTimeout(() => {
-                    window.location.href = `https://m.me/168173419701763?text=Ya aparté mi número ${elegido}. Adjunto capturas.`;
+                    window.location.href = `https://m.me/168173419701763?text=Ya aparté mi número ${elegido}.`;
                 }, 3000);
             } catch (e) { location.reload(); }
         }
