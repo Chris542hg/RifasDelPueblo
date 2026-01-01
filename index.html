@@ -10,54 +10,50 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #ffffff; color: #1e293b; overflow-x: hidden; }
         
-        /* OVERLAY AZUL MARINO INMERSIVO */
+        /* OVERLAY AZUL MARINO 85% */
         #guia-overlay { 
             position: fixed; inset: 0; 
-            background: rgba(15, 23, 42, 0.9); 
-            z-index: 400; 
-            display: block; /* Inicia activo */
+            background: rgba(15, 23, 42, 0.85); 
+            z-index: 8000; 
+            display: block;
             pointer-events: auto; 
-            transition: all 0.5s;
         }
 
+        /* ASISTENTE */
         #asistente-maya { 
-            position: fixed; z-index: 600; 
+            position: fixed; z-index: 9999; 
             transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); 
             display: flex; flex-direction: column-reverse; 
-            align-items: center; width: 280px; 
+            align-items: center; width: 320px; 
+            pointer-events: auto; 
         }
         
-        .maya-img { width: 100px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); }
+        .maya-img { width: 120px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3)); }
         
-        /* POSICIONES */
         .pos-centro { top: 50%; left: 50%; transform: translate(-50%, -50%) !important; }
-        .pos-guia-top { top: 20px; left: 50%; transform: translateX(-50%) scale(0.85) !important; }
+        .pos-guia-top { top: 20px; left: 50%; transform: translateX(-50%) scale(0.8) !important; }
 
         /* BUSCADOR PEGAJOSO */
-        .sticky-search {
-            position: sticky;
-            top: 70px; /* Debajo de la nav */
-            z-index: 450;
-            background: white;
-            padding: 10px 0;
+        #area-buscador {
+            position: sticky; top: 0; z-index: 100;
+            background: white; padding: 15px 0;
             transition: all 0.3s;
         }
 
-        /* RESALTE DE FLUJO */
+        /* FOCO DE LUZ */
         .foco-activo { 
             position: relative !important; 
-            z-index: 501 !important; 
+            z-index: 8500 !important; 
             background: white !important;
-            box-shadow: 0 0 50px rgba(59, 130, 246, 1) !important;
+            box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.85), 0 0 40px rgba(59, 130, 246, 1) !important;
             pointer-events: auto !important;
+            opacity: 1 !important;
         }
-
-        .desactivado { pointer-events: none; }
 
         /* GRID */
         .grid-container { 
             display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; 
-            max-width: 1200px; margin: 0 auto; min-height: 600px;
+            max-width: 1200px; margin: 0 auto;
         }
         @media (min-width: 768px) { .grid-container { grid-template-columns: repeat(10, 1fr); } }
         @media (min-width: 1024px) { .grid-container { grid-template-columns: repeat(20, 1fr); } }
@@ -69,145 +65,110 @@
         }
         
         .encontrado-flash {
-            background: #FFD700 !important;
-            color: black !important;
-            transform: scale(1.6) !important;
-            z-index: 550 !important;
-            box-shadow: 0 0 30px #FFD700 !important;
-            border: 2px solid white !important;
+            background: #FFD700 !important; color: black !important;
+            transform: scale(1.6) !important; z-index: 8600 !important;
+            box-shadow: 0 0 30px #FFD700 !important; border: 2px solid white !important;
         }
 
         .seleccionado { background: #1d4ed8 !important; color: white !important; border: none; }
         .ocupado { background: #f8fafc !important; color: #cbd5e1 !important; cursor: not-allowed; }
     </style>
 </head>
-<body class="desactivado">
+<body>
 
     <div id="guia-overlay"></div>
-
+    
     <div id="asistente-maya" class="pos-centro">
         <img src="asist.png" alt="Asistente" class="maya-img">
-        <div class="bg-white p-5 rounded-[25px] border-4 border-blue-600 shadow-2xl mb-4 text-center w-full relative">
-            <p id="texto-asistente" class="text-[13px] font-black text-slate-800 leading-tight mb-3">¡Hola! Soy tu asistente.<br>¿En qué idioma te ayudo?</p>
+        <div class="bg-white p-6 rounded-[30px] border-4 border-blue-600 shadow-2xl mb-4 text-center w-full relative">
+            <p id="texto-asistente" class="text-sm font-black text-slate-800 leading-tight mb-4">¡Hola! Soy tu asistente.<br>¿En qué idioma te ayudo?</p>
             
             <div id="selector-idioma" class="flex flex-col gap-2">
-                <button onclick="iniciar('es')" class="bg-blue-600 text-white py-2 rounded-xl font-black text-[10px] uppercase">Español</button>
-                <button onclick="iniciar('maya')" class="bg-slate-900 text-white py-2 rounded-xl font-black text-[10px] uppercase">Maya T'aan</button>
+                <button onclick="iniciar('es')" class="bg-blue-600 text-white py-3 rounded-xl font-black text-[10px] uppercase w-full">Español</button>
+                <button onclick="iniciar('maya')" class="bg-slate-900 text-white py-3 rounded-xl font-black text-[10px] uppercase w-full">Maya T'aan</button>
             </div>
 
             <div id="form-nombre" class="hidden flex flex-col gap-3">
-                <input type="text" id="nombre-input" placeholder="Nombre Completo" class="w-full p-3 border-2 border-slate-100 rounded-xl font-bold text-center text-sm outline-none">
-                <button id="btn-confirmar" onclick="confirmarTodo()" class="bg-green-600 text-white py-3 rounded-xl font-black uppercase text-[10px]">Confirmar Registro</button>
+                <input type="text" id="nombre-input" placeholder="Nombre Completo" class="w-full p-4 border-2 border-slate-100 rounded-xl font-bold text-center outline-none">
+                <button id="btn-confirmar" onclick="confirmarTodo()" class="bg-green-600 text-white py-4 rounded-xl font-black uppercase text-xs">Confirmar Registro</button>
             </div>
             
-            <button id="btn-next" onclick="proximoPaso()" class="hidden w-full bg-blue-600 text-white py-2 rounded-xl font-black uppercase text-[10px] mt-1">Entendido →</button>
+            <button id="btn-next" onclick="proximoPaso()" class="hidden w-full bg-blue-600 text-white py-3 rounded-xl font-black uppercase text-xs mt-2">Entendido →</button>
         </div>
     </div>
 
-    <nav class="sticky top-0 z-[502] bg-[#0f172a] py-3 px-4 md:px-10 flex justify-between items-center shadow-xl">
+    <nav class="bg-[#0f172a] py-3 px-4 md:px-10 flex justify-between items-center shadow-xl">
         <div class="flex items-center gap-2">
-            <img src="logo.png" alt="Logo" class="h-8 md:h-10">
-            <span class="text-white font-extrabold italic uppercase text-sm md:text-xl">Rifas <span class="text-blue-500" id="txt-del">del</span> <span id="txt-pueblo">Pueblo</span></span>
+            <img src="logo.png" alt="Logo" class="h-8">
+            <span class="text-white font-extrabold italic uppercase text-sm">Rifas <span class="text-blue-500" id="txt-del">del</span> <span id="txt-pueblo">Pueblo</span></span>
         </div>
     </nav>
 
-    <header class="flex flex-col items-center py-6" id="main-header">
-        <img src="tv-hisense.png" alt="TV" class="w-[220px] md:w-[350px] drop-shadow-2xl mb-4">
-        <h1 id="titulo-principal" class="text-xl md:text-4xl font-extrabold uppercase italic text-center text-slate-900 leading-none px-4">
-            ¡Gánate un SMART TV 50´´ <br>
-            <span class="text-blue-600">FULL HD GRATIS!</span>
+    <header class="flex flex-col items-center py-6">
+        <img src="tv-hisense.png" alt="TV" class="w-[200px] mb-4">
+        <h1 id="titulo-principal" class="text-xl font-extrabold uppercase italic text-center px-4">
+            ¡Gánate un SMART TV 50´´ <br> <span class="text-blue-600">FULL HD GRATIS!</span>
         </h1>
     </header>
 
-    <div id="area-buscador" class="sticky-search transition-all duration-300">
+    <div id="area-buscador">
         <div class="max-w-xl mx-auto px-6">
             <input type="text" inputmode="numeric" id="buscador" oninput="buscar()" placeholder="Busca tu número aquí..." class="w-full p-4 rounded-xl border-2 border-slate-200 outline-none font-bold text-center">
         </div>
     </div>
 
-    <main id="area-grid" class="py-4 px-3 md:px-10 bg-white">
-        <div class="max-w-[1250px] mx-auto bg-white p-3 md:p-8 rounded-[25px] shadow-2xl border border-slate-100">
+    <main class="py-6 px-3">
+        <div id="area-grid" class="max-w-[1250px] mx-auto bg-white p-3 rounded-[25px] border border-slate-100">
             <div class="grid-container" id="grid-numeros"></div>
         </div>
     </main>
 
-    <div id="footer-registro" class="fixed bottom-0 inset-x-0 p-3 bg-white/90 backdrop-blur-md border-t flex justify-center z-[490] opacity-20">
-        <button onclick="pedirNombre()" id="btn-registrar" class="w-full max-w-md bg-blue-600 text-white py-3.5 rounded-xl font-black uppercase text-lg shadow-lg">
+    <div class="h-28"></div>
+
+    <div id="footer-registro" class="fixed bottom-0 inset-x-0 p-4 bg-white/95 border-t flex justify-center z-[7000]">
+        <button onclick="pedirNombre()" id="btn-registrar" class="w-full max-w-md bg-blue-600 text-white py-4 rounded-xl font-black uppercase text-lg shadow-xl transition-all duration-300">
             Registrar mi número
         </button>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5DtknopaEk6CoentxuqUsc9XPJpM5KbIbngmqffLfzEwH5PvG-FqW8Vf_jFqdxqTs/exec";
-        const FB_PAGE_URL = "https://m.me/168173419701763";
         
-        const asist = document.getElementById('asistente-maya');
-        const overlay = document.getElementById('guia-overlay');
-        const txt = document.getElementById('texto-asistente');
         let lang = 'es'; let paso = 0; let elegido = null;
 
-        const traducciones = {
-            es: {
-                titulo: "¡Gánate un SMART TV 50´´ <br><span class='text-blue-600'>FULL HD GRATIS!</span>",
-                del: "del", pueblo: "Pueblo", registrar: "Registrar mi número",
-                inst: [
-                    "Usa este buscador para ver si tu número está libre.",
-                    "Elige tu número de la suerte aquí abajo.",
-                    "Ahora presiona 'Registrar Número'.",
-                    "Escribe tu nombre completo para terminar.",
-                    "¡Registro exitoso! Gracias por participar. Ahora serás enviado a Messenger para enviar tus capturas."
-                ]
-            },
-            maya: {
-                titulo: "¡Náajalt untúul SMART TV 50´´ <br><span class='text-blue-600'>MA' BO'OTIK!</span>",
-                del: "ti'", pueblo: "Kaaj", registrar: "Ts'íib k'áaba' xook",
-                inst: [
-                    "Kaxt a xook tial a wilik wa yan.",
-                    "Bejla’e’ mach untúul xook ti' le xooka'.",
-                    "Bejla’e’ mach le botón 'Ts'íib k'áaba' xook'.",
-                    "T'aan a k'áaba' t'aan a bin.",
-                    "¡Ma'alob! Yum b'ootik. Bejla’e’ xeen Facebook Messenger tial a túuxtik a oochel."
-                ]
-            }
+        const traduccion = {
+            es: { tit: "¡Gánate un SMART TV 50´´ <br><span class='text-blue-600'>FULL HD GRATIS!</span>", del: "del", pablo: "Pueblo", reg: "Registrar mi número", guia: ["Busca si tu número está libre.", "Toca tu número de la suerte aquí abajo.", "Ahora presiona 'Registrar Número'.", "Escribe tu nombre completo.", "¡Listo! Te envío a Messenger."] },
+            maya: { tit: "¡Náajalt untúul SMART TV 50´´ <br><span class='text-blue-600'>MA' BO'OTIK!</span>", del: "ti'", pablo: "Kaaj", reg: "Ts'íib k'áaba' xook", guia: ["Kaxt a xook tial a wilik wa yan.", "Bejla’e’ mach untúul xook.", "Mach 'Ts'íib k'áaba' xook'.", "T'aan a k'áaba'.", "Ma'alob! Xeen Facebook."] }
         };
 
         function iniciar(l) {
             lang = l;
-            document.body.classList.remove('desactivado');
             document.getElementById('selector-idioma').classList.add('hidden');
             document.getElementById('btn-next').classList.remove('hidden');
-            
-            // Traducir Interfaz
-            document.getElementById('titulo-principal').innerHTML = traducciones[lang].titulo;
-            document.getElementById('txt-del').innerText = traducciones[lang].del;
-            document.getElementById('txt-pueblo').innerText = traducciones[lang].pueblo;
-            document.getElementById('btn-registrar').innerText = traducciones[lang].registrar;
-            
+            document.getElementById('titulo-principal').innerHTML = traduccion[lang].tit;
+            document.getElementById('txt-del').innerText = traduccion[lang].del;
+            document.getElementById('txt-pueblo').innerText = traduccion[lang].pablo;
+            document.getElementById('btn-registrar').innerText = traduccion[lang].reg;
             proximoPaso();
         }
 
         function proximoPaso() {
-            // Limpiar focos anteriores
             document.getElementById('area-buscador').classList.remove('foco-activo');
             document.getElementById('area-grid').classList.remove('foco-activo');
-            document.getElementById('footer-registro').classList.remove('foco-activo', 'opacity-100');
-
+            
             if (paso === 0) {
-                asist.className = "pos-guia-top";
+                document.getElementById('asistente-maya').className = "pos-guia-top";
                 document.getElementById('area-buscador').classList.add('foco-activo');
-                window.scrollTo({ top: 150, behavior: 'smooth' });
             } else if (paso === 1) {
-                asist.className = "pos-guia-top";
+                document.getElementById('asistente-maya').className = "pos-guia-top";
                 document.getElementById('area-grid').classList.add('foco-activo');
-                window.scrollTo({ top: 400, behavior: 'smooth' });
-            } 
-            txt.innerText = traducciones[lang].inst[paso];
+            }
+            document.getElementById('texto-asistente').innerText = traduccion[lang].guia[paso];
             paso++;
         }
 
         function buscar() {
             let valor = document.getElementById('buscador').value;
-            document.querySelectorAll('.numero').forEach(n => n.classList.remove('encontrado-flash'));
             if (!valor) return;
             let numId = valor.toString().padStart(3, '0');
             const el = document.getElementById(`num-${numId}`);
@@ -223,43 +184,38 @@
             elegido = numero;
             document.getElementById(`num-${numero}`).classList.add('seleccionado');
             
-            // Siguiente paso: Registrar
-            asist.className = "fixed bottom-32 left-1/2 -translate-x-1/2 scale-90";
-            document.getElementById('footer-registro').classList.add('foco-activo', 'opacity-100');
-            txt.innerText = traducciones[lang].inst[2];
+            document.getElementById('guia-overlay').style.display = "none";
+            document.getElementById('area-grid').classList.remove('foco-activo');
+            document.getElementById('asistente-maya').className = "fixed bottom-32 left-1/2 -translate-x-1/2 scale-75";
+            document.getElementById('btn-registrar').classList.add('foco-activo');
             document.getElementById('btn-next').classList.add('hidden');
         }
 
         function pedirNombre() {
-            if (!elegido) return;
-            asist.className = "pos-centro";
-            txt.innerText = traducciones[lang].inst[3];
+            document.getElementById('guia-overlay').style.display = "block";
+            document.getElementById('asistente-maya').className = "pos-centro";
+            document.getElementById('texto-asistente').innerText = traduccion[lang].guia[3];
             document.getElementById('form-nombre').classList.remove('hidden');
         }
 
         async function confirmarTodo() {
             const nombre = document.getElementById('nombre-input').value.trim();
-            if (nombre.length < 8) return alert("Nombre completo por favor.");
-            
-            txt.innerText = "...";
+            if (nombre.length < 5) return alert("Nombre completo.");
+            document.getElementById('btn-confirmar').innerText = "...";
             try {
                 await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ numeros: [elegido], nombre: nombre }) });
-                
-                txt.innerText = traducciones[lang].inst[4];
-                document.getElementById('form-nombre').classList.add('hidden');
-                
+                document.getElementById('texto-asistente').innerText = traduccion[lang].guia[4];
                 setTimeout(() => {
-                    const msg = `¡Hola! Ya aparté mi número ${elegido}. Aquí adjunto mis capturas y datos del Giveaway.`;
-                    window.location.href = `${FB_PAGE_URL}?text=${encodeURIComponent(msg)}`;
+                    window.location.href = `https://m.me/168173419701763?text=Ya aparté mi número ${elegido}. Adjunto capturas.`;
                 }, 3000);
-                
-            } catch (e) { alert("Error"); location.reload(); }
+            } catch (e) { location.reload(); }
         }
 
         async function cargar() {
             const res = await fetch(SCRIPT_URL);
             const data = await res.json();
             const grid = document.getElementById('grid-numeros');
+            grid.innerHTML = "";
             data.forEach(item => {
                 let d = document.createElement('div');
                 d.innerText = item.numero; d.id = `num-${item.numero}`;
