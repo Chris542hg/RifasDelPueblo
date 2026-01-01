@@ -10,12 +10,14 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #ffffff; color: #1e293b; overflow-x: hidden; }
         
+        /* OVERLAY AZUL MARINO INMERSIVO */
         #guia-overlay { 
             position: fixed; inset: 0; 
-            background: rgba(15, 23, 42, 0.85); 
+            background: rgba(15, 23, 42, 0.9); 
             z-index: 400; 
-            display: none; 
+            display: block; /* Inicia activo */
             pointer-events: auto; 
+            transition: all 0.5s;
         }
 
         #asistente-maya { 
@@ -27,32 +29,35 @@
         
         .maya-img { width: 100px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); }
         
-        /* POSICIONAMIENTO DINÁMICO SIN AFECTAR EL RESTO DEL DISEÑO */
+        /* POSICIONES */
         .pos-centro { top: 50%; left: 50%; transform: translate(-50%, -50%) !important; }
-        
-        /* En móvil: arriba para no tapar buscador/números. En PC: Lateral. */
-        .pos-busqueda, .pos-grid { 
-            top: 20px; left: 50%; 
-            transform: translateX(-50%) scale(0.8) !important; 
+        .pos-guia-top { top: 20px; left: 50%; transform: translateX(-50%) scale(0.85) !important; }
+
+        /* BUSCADOR PEGAJOSO */
+        .sticky-search {
+            position: sticky;
+            top: 70px; /* Debajo de la nav */
+            z-index: 450;
+            background: white;
+            padding: 10px 0;
+            transition: all 0.3s;
         }
 
-        @media (min-width: 1024px) {
-            .pos-busqueda { top: 160px; right: 20px; left: auto; transform: scale(0.85) !important; }
-            .pos-grid { top: 40px; right: 20px; left: auto; transform: scale(0.75) !important; }
+        /* RESALTE DE FLUJO */
+        .foco-activo { 
+            position: relative !important; 
+            z-index: 501 !important; 
+            background: white !important;
+            box-shadow: 0 0 50px rgba(59, 130, 246, 1) !important;
+            pointer-events: auto !important;
         }
-        
-        .pos-lateral { top: 50%; right: -180px; transform: translateY(-50%) scale(0.6) !important; opacity: 0.5; }
-        @media (min-width: 768px) { .pos-lateral { right: -120px; } }
-        .pos-lateral:hover { right: -100px; opacity: 1; }
 
-        /* GRID ORIGINAL */
+        .desactivado { pointer-events: none; }
+
+        /* GRID */
         .grid-container { 
-            display: grid; 
-            grid-template-columns: repeat(5, 1fr); 
-            gap: 6px; 
-            max-width: 1200px; 
-            margin: 0 auto;
-            min-height: 500px;
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; 
+            max-width: 1200px; margin: 0 auto; min-height: 600px;
         }
         @media (min-width: 768px) { .grid-container { grid-template-columns: repeat(10, 1fr); } }
         @media (min-width: 1024px) { .grid-container { grid-template-columns: repeat(20, 1fr); } }
@@ -66,31 +71,23 @@
         .encontrado-flash {
             background: #FFD700 !important;
             color: black !important;
-            transform: scale(1.4);
+            transform: scale(1.6) !important;
             z-index: 550 !important;
-            box-shadow: 0 0 25px #FFD700 !important;
+            box-shadow: 0 0 30px #FFD700 !important;
             border: 2px solid white !important;
         }
 
         .seleccionado { background: #1d4ed8 !important; color: white !important; border: none; }
-        .ocupado { background: #f8fafc !important; color: #cbd5e1 !important; cursor: not-allowed; border: 1px dashed #cbd5e1; }
-        
-        .foco-activo { 
-            position: relative !important; 
-            z-index: 501 !important; 
-            background: white !important;
-            box-shadow: 0 0 40px rgba(59, 130, 246, 0.8) !important;
-        }
+        .ocupado { background: #f8fafc !important; color: #cbd5e1 !important; cursor: not-allowed; }
     </style>
 </head>
-<body>
+<body class="desactivado">
 
     <div id="guia-overlay"></div>
 
     <div id="asistente-maya" class="pos-centro">
         <img src="asist.png" alt="Asistente" class="maya-img">
-        <div class="bg-white p-5 rounded-[25px] border-4 border-blue-600 shadow-2xl mb-4 text-center w-full relative" id="burbuja">
-            <i class="fas fa-times absolute top-2 right-4 text-slate-300 cursor-pointer" onclick="finalizarGuia()"></i>
+        <div class="bg-white p-5 rounded-[25px] border-4 border-blue-600 shadow-2xl mb-4 text-center w-full relative">
             <p id="texto-asistente" class="text-[13px] font-black text-slate-800 leading-tight mb-3">¡Hola! Soy tu asistente.<br>¿En qué idioma te ayudo?</p>
             
             <div id="selector-idioma" class="flex flex-col gap-2">
@@ -99,7 +96,7 @@
             </div>
 
             <div id="form-nombre" class="hidden flex flex-col gap-3">
-                <input type="text" id="nombre-input" placeholder="Nombre Completo" class="w-full p-3 border-2 border-slate-100 rounded-xl font-bold text-center text-sm outline-none focus:border-blue-600">
+                <input type="text" id="nombre-input" placeholder="Nombre Completo" class="w-full p-3 border-2 border-slate-100 rounded-xl font-bold text-center text-sm outline-none">
                 <button id="btn-confirmar" onclick="confirmarTodo()" class="bg-green-600 text-white py-3 rounded-xl font-black uppercase text-[10px]">Confirmar Registro</button>
             </div>
             
@@ -107,38 +104,34 @@
         </div>
     </div>
 
-    <nav class="sticky top-0 z-[300] bg-[#0f172a] py-3 px-4 md:px-10 flex justify-between items-center shadow-xl">
+    <nav class="sticky top-0 z-[502] bg-[#0f172a] py-3 px-4 md:px-10 flex justify-between items-center shadow-xl">
         <div class="flex items-center gap-2">
             <img src="logo.png" alt="Logo" class="h-8 md:h-10">
-            <span class="text-white font-extrabold italic uppercase text-sm md:text-xl">Rifas <span class="text-blue-500">del</span> Pueblo</span>
-        </div>
-        <div class="flex gap-2">
-            <a href="https://www.facebook.com/profile.php?id=168173419701763" target="_blank" class="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 bg-[#1877F2] text-white rounded-full"><i class="fab fa-facebook-f md:mr-2"></i><span class="hidden md:inline text-xs font-bold">Facebook</span></a>
-            <a href="https://wa.me/5216144662162" target="_blank" class="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 bg-[#25D366] text-white rounded-full"><i class="fab fa-whatsapp md:mr-2"></i><span class="hidden md:inline text-xs font-bold">WhatsApp</span></a>
+            <span class="text-white font-extrabold italic uppercase text-sm md:text-xl">Rifas <span class="text-blue-500" id="txt-del">del</span> <span id="txt-pueblo">Pueblo</span></span>
         </div>
     </nav>
 
-    <header class="flex flex-col items-center py-6">
-        <img src="tv-hisense.png" alt="TV" class="w-[240px] md:w-[400px] drop-shadow-2xl mb-4">
-        <h1 class="text-xl md:text-5xl font-extrabold uppercase italic text-center text-slate-900 leading-none px-4">
+    <header class="flex flex-col items-center py-6" id="main-header">
+        <img src="tv-hisense.png" alt="TV" class="w-[220px] md:w-[350px] drop-shadow-2xl mb-4">
+        <h1 id="titulo-principal" class="text-xl md:text-4xl font-extrabold uppercase italic text-center text-slate-900 leading-none px-4">
             ¡Gánate un SMART TV 50´´ <br>
             <span class="text-blue-600">FULL HD GRATIS!</span>
         </h1>
     </header>
 
-    <div id="area-buscador" class="py-4 bg-white transition-all duration-300">
+    <div id="area-buscador" class="sticky-search transition-all duration-300">
         <div class="max-w-xl mx-auto px-6">
-            <input type="text" inputmode="numeric" pattern="[0-9]*" id="buscador" oninput="buscar()" placeholder="Busca tu número aquí..." class="w-full p-4 rounded-xl border-2 border-slate-200 outline-none font-bold text-center">
+            <input type="text" inputmode="numeric" id="buscador" oninput="buscar()" placeholder="Busca tu número aquí..." class="w-full p-4 rounded-xl border-2 border-slate-200 outline-none font-bold text-center">
         </div>
     </div>
 
-    <main id="area-grid" class="py-4 px-3 md:px-10 bg-white transition-all duration-300">
+    <main id="area-grid" class="py-4 px-3 md:px-10 bg-white">
         <div class="max-w-[1250px] mx-auto bg-white p-3 md:p-8 rounded-[25px] shadow-2xl border border-slate-100">
             <div class="grid-container" id="grid-numeros"></div>
         </div>
     </main>
 
-    <div class="fixed bottom-0 inset-x-0 p-3 bg-white/90 backdrop-blur-md border-t flex justify-center z-[300]">
+    <div id="footer-registro" class="fixed bottom-0 inset-x-0 p-3 bg-white/90 backdrop-blur-md border-t flex justify-center z-[490] opacity-20">
         <button onclick="pedirNombre()" id="btn-registrar" class="w-full max-w-md bg-blue-600 text-white py-3.5 rounded-xl font-black uppercase text-lg shadow-lg">
             Registrar mi número
         </button>
@@ -146,39 +139,69 @@
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5DtknopaEk6CoentxuqUsc9XPJpM5KbIbngmqffLfzEwH5PvG-FqW8Vf_jFqdxqTs/exec";
+        const FB_PAGE_URL = "https://m.me/168173419701763";
         
         const asist = document.getElementById('asistente-maya');
         const overlay = document.getElementById('guia-overlay');
         const txt = document.getElementById('texto-asistente');
         let lang = 'es'; let paso = 0; let elegido = null;
-        let estaEnviando = false;
 
-        const instrucciones = {
-            es: ["Usa este buscador para ver si tu número está libre.", "Elige tu número de la suerte aquí abajo.", "Ahora presiona 'Registrar Número'.", "Escribe tu nombre completo."],
-            maya: ["Kaxt a xook tial a wilik wa yan.", "Bejla’e’ mach untúul xook.", "Mach le botón 'Registrar Número'.", "T'aan a k'áaba' t'aan a bin."]
+        const traducciones = {
+            es: {
+                titulo: "¡Gánate un SMART TV 50´´ <br><span class='text-blue-600'>FULL HD GRATIS!</span>",
+                del: "del", pueblo: "Pueblo", registrar: "Registrar mi número",
+                inst: [
+                    "Usa este buscador para ver si tu número está libre.",
+                    "Elige tu número de la suerte aquí abajo.",
+                    "Ahora presiona 'Registrar Número'.",
+                    "Escribe tu nombre completo para terminar.",
+                    "¡Registro exitoso! Gracias por participar. Ahora serás enviado a Messenger para enviar tus capturas."
+                ]
+            },
+            maya: {
+                titulo: "¡Náajalt untúul SMART TV 50´´ <br><span class='text-blue-600'>MA' BO'OTIK!</span>",
+                del: "ti'", pueblo: "Kaaj", registrar: "Ts'íib k'áaba' xook",
+                inst: [
+                    "Kaxt a xook tial a wilik wa yan.",
+                    "Bejla’e’ mach untúul xook ti' le xooka'.",
+                    "Bejla’e’ mach le botón 'Ts'íib k'áaba' xook'.",
+                    "T'aan a k'áaba' t'aan a bin.",
+                    "¡Ma'alob! Yum b'ootik. Bejla’e’ xeen Facebook Messenger tial a túuxtik a oochel."
+                ]
+            }
         };
 
         function iniciar(l) {
             lang = l;
-            overlay.style.display = "block";
+            document.body.classList.remove('desactivado');
             document.getElementById('selector-idioma').classList.add('hidden');
             document.getElementById('btn-next').classList.remove('hidden');
+            
+            // Traducir Interfaz
+            document.getElementById('titulo-principal').innerHTML = traducciones[lang].titulo;
+            document.getElementById('txt-del').innerText = traducciones[lang].del;
+            document.getElementById('txt-pueblo').innerText = traducciones[lang].pueblo;
+            document.getElementById('btn-registrar').innerText = traducciones[lang].registrar;
+            
             proximoPaso();
         }
 
         function proximoPaso() {
+            // Limpiar focos anteriores
             document.getElementById('area-buscador').classList.remove('foco-activo');
             document.getElementById('area-grid').classList.remove('foco-activo');
+            document.getElementById('footer-registro').classList.remove('foco-activo', 'opacity-100');
+
             if (paso === 0) {
-                asist.className = "pos-busqueda";
+                asist.className = "pos-guia-top";
                 document.getElementById('area-buscador').classList.add('foco-activo');
-                setTimeout(() => document.getElementById('area-buscador').scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+                window.scrollTo({ top: 150, behavior: 'smooth' });
             } else if (paso === 1) {
-                asist.className = "pos-grid";
+                asist.className = "pos-guia-top";
                 document.getElementById('area-grid').classList.add('foco-activo');
-                document.getElementById('area-grid').scrollIntoView({ behavior: 'smooth', block: 'center' });
-            } else { finalizarGuia(); }
-            txt.innerText = instrucciones[lang][paso];
+                window.scrollTo({ top: 400, behavior: 'smooth' });
+            } 
+            txt.innerText = traducciones[lang].inst[paso];
             paso++;
         }
 
@@ -196,66 +219,56 @@
         }
 
         function seleccionar(numero) {
-            if(elegido) {
-                const prev = document.getElementById(`num-${elegido}`);
-                if(prev) prev.classList.remove('seleccionado');
-            }
+            if(elegido) document.getElementById(`num-${elegido}`)?.classList.remove('seleccionado');
             elegido = numero;
             document.getElementById(`num-${numero}`).classList.add('seleccionado');
-            document.getElementById('area-grid').classList.remove('foco-activo');
-            overlay.style.display = "none"; 
-            asist.className = "fixed bottom-24 right-4 scale-75";
-            document.getElementById('burbuja').style.display = "block";
-            txt.innerText = instrucciones[lang][2];
+            
+            // Siguiente paso: Registrar
+            asist.className = "fixed bottom-32 left-1/2 -translate-x-1/2 scale-90";
+            document.getElementById('footer-registro').classList.add('foco-activo', 'opacity-100');
+            txt.innerText = traducciones[lang].inst[2];
             document.getElementById('btn-next').classList.add('hidden');
         }
 
         function pedirNombre() {
-            if (!elegido) return alert("Selecciona un número primero.");
-            overlay.style.display = "block";
+            if (!elegido) return;
             asist.className = "pos-centro";
-            txt.innerText = instrucciones[lang][3];
+            txt.innerText = traducciones[lang].inst[3];
             document.getElementById('form-nombre').classList.remove('hidden');
         }
 
-        function finalizarGuia() {
-            overlay.style.display = "none";
-            document.getElementById('area-buscador').classList.remove('foco-activo');
-            document.getElementById('area-grid').classList.remove('foco-activo');
-            asist.className = "pos-lateral";
-            document.getElementById('burbuja').style.display = "none";
+        async function confirmarTodo() {
+            const nombre = document.getElementById('nombre-input').value.trim();
+            if (nombre.length < 8) return alert("Nombre completo por favor.");
+            
+            txt.innerText = "...";
+            try {
+                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ numeros: [elegido], nombre: nombre }) });
+                
+                txt.innerText = traducciones[lang].inst[4];
+                document.getElementById('form-nombre').classList.add('hidden');
+                
+                setTimeout(() => {
+                    const msg = `¡Hola! Ya aparté mi número ${elegido}. Aquí adjunto mis capturas y datos del Giveaway.`;
+                    window.location.href = `${FB_PAGE_URL}?text=${encodeURIComponent(msg)}`;
+                }, 3000);
+                
+            } catch (e) { alert("Error"); location.reload(); }
         }
 
         async function cargar() {
-            try {
-                const res = await fetch(SCRIPT_URL);
-                const data = await res.json();
-                const grid = document.getElementById('grid-numeros');
-                grid.innerHTML = "";
-                data.forEach(item => {
-                    let d = document.createElement('div');
-                    d.innerText = item.numero; d.id = `num-${item.numero}`;
-                    d.className = item.estado === "Vendido" ? 'numero ocupado' : 'numero';
-                    if(item.estado !== "Vendido") d.onclick = () => seleccionar(item.numero);
-                    grid.appendChild(d);
-                });
-            } catch (e) { console.error("Error"); }
+            const res = await fetch(SCRIPT_URL);
+            const data = await res.json();
+            const grid = document.getElementById('grid-numeros');
+            data.forEach(item => {
+                let d = document.createElement('div');
+                d.innerText = item.numero; d.id = `num-${item.numero}`;
+                d.className = item.estado === "Vendido" ? 'numero ocupado' : 'numero';
+                if(item.estado !== "Vendido") d.onclick = () => seleccionar(item.numero);
+                grid.appendChild(d);
+            });
         }
         cargar();
-
-        async function confirmarTodo() {
-            if (estaEnviando) return;
-            const nombre = document.getElementById('nombre-input').value.trim();
-            if (nombre.length < 8 || !nombre.includes(' ')) return alert("Ingresa tu nombre y apellido.");
-            estaEnviando = true;
-            const btn = document.getElementById('btn-confirmar');
-            btn.innerText = "PROCESANDO...";
-            try {
-                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ numeros: [elegido], nombre: nombre }) });
-                window.open(`https://wa.me/5216144662162?text=Hola, registré el número ${elegido} a nombre de ${nombre}`);
-                location.reload();
-            } catch (e) { location.reload(); }
-        }
     </script>
 </body>
 </html>
