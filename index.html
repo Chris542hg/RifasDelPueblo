@@ -22,26 +22,37 @@
             position: fixed; z-index: 600; 
             transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); 
             display: flex; flex-direction: column-reverse; 
-            align-items: center; width: 300px; 
+            align-items: center; width: 280px; 
         }
         
-        .maya-img { width: 120px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); }
+        .maya-img { width: 100px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); }
         
+        /* POSICIONAMIENTO DINÁMICO SIN AFECTAR EL RESTO DEL DISEÑO */
         .pos-centro { top: 50%; left: 50%; transform: translate(-50%, -50%) !important; }
-        .pos-busqueda { top: 160px; right: 20px; transform: scale(0.85) !important; }
-        .pos-grid { top: 40px; right: 20px; transform: scale(0.75) !important; }
+        
+        /* En móvil: arriba para no tapar buscador/números. En PC: Lateral. */
+        .pos-busqueda, .pos-grid { 
+            top: 20px; left: 50%; 
+            transform: translateX(-50%) scale(0.8) !important; 
+        }
+
+        @media (min-width: 1024px) {
+            .pos-busqueda { top: 160px; right: 20px; left: auto; transform: scale(0.85) !important; }
+            .pos-grid { top: 40px; right: 20px; left: auto; transform: scale(0.75) !important; }
+        }
         
         .pos-lateral { top: 50%; right: -180px; transform: translateY(-50%) scale(0.6) !important; opacity: 0.5; }
         @media (min-width: 768px) { .pos-lateral { right: -120px; } }
         .pos-lateral:hover { right: -100px; opacity: 1; }
 
+        /* GRID ORIGINAL */
         .grid-container { 
             display: grid; 
             grid-template-columns: repeat(5, 1fr); 
             gap: 6px; 
             max-width: 1200px; 
             margin: 0 auto;
-            min-height: 500px; /* EVITA EL SALTO DE CARGA */
+            min-height: 500px;
         }
         @media (min-width: 768px) { .grid-container { grid-template-columns: repeat(10, 1fr); } }
         @media (min-width: 1024px) { .grid-container { grid-template-columns: repeat(20, 1fr); } }
@@ -63,8 +74,7 @@
 
         .seleccionado { background: #1d4ed8 !important; color: white !important; border: none; }
         .ocupado { background: #f8fafc !important; color: #cbd5e1 !important; cursor: not-allowed; border: 1px dashed #cbd5e1; }
-        .btn-close { position: absolute; top: 10px; right: 15px; color: #cbd5e1; cursor: pointer; font-size: 1.2rem; }
-
+        
         .foco-activo { 
             position: relative !important; 
             z-index: 501 !important; 
@@ -79,21 +89,21 @@
 
     <div id="asistente-maya" class="pos-centro">
         <img src="asist.png" alt="Asistente" class="maya-img">
-        <div class="bg-white p-6 rounded-[30px] border-4 border-blue-600 shadow-2xl mb-4 text-center w-full relative" id="burbuja">
-            <i class="fas fa-times btn-close" onclick="finalizarGuia()"></i>
-            <p id="texto-asistente" class="text-sm font-black text-slate-800 leading-tight mb-4">¡Hola! Soy tu asistente.<br>¿En qué idioma te ayudo?</p>
+        <div class="bg-white p-5 rounded-[25px] border-4 border-blue-600 shadow-2xl mb-4 text-center w-full relative" id="burbuja">
+            <i class="fas fa-times absolute top-2 right-4 text-slate-300 cursor-pointer" onclick="finalizarGuia()"></i>
+            <p id="texto-asistente" class="text-[13px] font-black text-slate-800 leading-tight mb-3">¡Hola! Soy tu asistente.<br>¿En qué idioma te ayudo?</p>
             
             <div id="selector-idioma" class="flex flex-col gap-2">
-                <button onclick="iniciar('es')" class="bg-blue-600 text-white py-3 rounded-xl font-black text-[10px] uppercase">Español</button>
-                <button onclick="iniciar('maya')" class="bg-slate-900 text-white py-3 rounded-xl font-black text-[10px] uppercase">Maya T'aan</button>
+                <button onclick="iniciar('es')" class="bg-blue-600 text-white py-2 rounded-xl font-black text-[10px] uppercase">Español</button>
+                <button onclick="iniciar('maya')" class="bg-slate-900 text-white py-2 rounded-xl font-black text-[10px] uppercase">Maya T'aan</button>
             </div>
 
             <div id="form-nombre" class="hidden flex flex-col gap-3">
-                <input type="text" id="nombre-input" placeholder="Nombre Completo" class="w-full p-4 border-2 border-slate-100 rounded-xl font-bold text-center outline-none focus:border-blue-600">
-                <button id="btn-confirmar" onclick="confirmarTodo()" class="bg-green-600 text-white py-4 rounded-xl font-black uppercase text-xs">Confirmar Registro</button>
+                <input type="text" id="nombre-input" placeholder="Nombre Completo" class="w-full p-3 border-2 border-slate-100 rounded-xl font-bold text-center text-sm outline-none focus:border-blue-600">
+                <button id="btn-confirmar" onclick="confirmarTodo()" class="bg-green-600 text-white py-3 rounded-xl font-black uppercase text-[10px]">Confirmar Registro</button>
             </div>
             
-            <button id="btn-next" onclick="proximoPaso()" class="hidden w-full bg-blue-600 text-white py-3 rounded-xl font-black uppercase text-xs mt-2">Entendido →</button>
+            <button id="btn-next" onclick="proximoPaso()" class="hidden w-full bg-blue-600 text-white py-2 rounded-xl font-black uppercase text-[10px] mt-1">Entendido →</button>
         </div>
     </div>
 
@@ -105,18 +115,15 @@
         <div class="flex gap-2">
             <a href="https://www.facebook.com/profile.php?id=168173419701763" target="_blank" class="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 bg-[#1877F2] text-white rounded-full"><i class="fab fa-facebook-f md:mr-2"></i><span class="hidden md:inline text-xs font-bold">Facebook</span></a>
             <a href="https://wa.me/5216144662162" target="_blank" class="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 bg-[#25D366] text-white rounded-full"><i class="fab fa-whatsapp md:mr-2"></i><span class="hidden md:inline text-xs font-bold">WhatsApp</span></a>
-            <button class="bg-[#FFD700] text-black h-9 px-3 md:px-5 rounded-full font-black text-[9px] md:text-xs shadow-md uppercase">Entregas</button>
         </div>
     </nav>
 
-    <header class="flex flex-col items-center py-8">
-        <img src="tv-hisense.png" alt="TV" class="w-[280px] md:w-[400px] drop-shadow-2xl mb-6">
-        <div class="text-center px-4 max-w-2xl">
-            <h1 class="text-2xl md:text-5xl font-extrabold uppercase italic tracking-tighter text-slate-900 leading-none">
-                ¡Gánate un SMART TV 50´´ <br>
-                <span class="text-blue-600">FULL HD GRATIS!</span>
-            </h1>
-        </div>
+    <header class="flex flex-col items-center py-6">
+        <img src="tv-hisense.png" alt="TV" class="w-[240px] md:w-[400px] drop-shadow-2xl mb-4">
+        <h1 class="text-xl md:text-5xl font-extrabold uppercase italic text-center text-slate-900 leading-none px-4">
+            ¡Gánate un SMART TV 50´´ <br>
+            <span class="text-blue-600">FULL HD GRATIS!</span>
+        </h1>
     </header>
 
     <div id="area-buscador" class="py-4 bg-white transition-all duration-300">
@@ -125,15 +132,14 @@
         </div>
     </div>
 
-    <main id="area-grid" class="py-6 px-3 md:px-10 bg-white transition-all duration-300">
-        <div class="max-w-[1250px] mx-auto bg-white p-3 md:p-8 rounded-[25px] md:rounded-[40px] shadow-2xl border border-slate-100">
-            <div class="grid-container" id="grid-numeros">
-                </div>
+    <main id="area-grid" class="py-4 px-3 md:px-10 bg-white transition-all duration-300">
+        <div class="max-w-[1250px] mx-auto bg-white p-3 md:p-8 rounded-[25px] shadow-2xl border border-slate-100">
+            <div class="grid-container" id="grid-numeros"></div>
         </div>
     </main>
 
     <div class="fixed bottom-0 inset-x-0 p-3 bg-white/90 backdrop-blur-md border-t flex justify-center z-[300]">
-        <button onclick="pedirNombre()" id="btn-registrar" class="w-full max-w-md bg-blue-600 text-white py-3.5 rounded-xl font-black uppercase text-lg shadow-lg active:scale-95 transition-all">
+        <button onclick="pedirNombre()" id="btn-registrar" class="w-full max-w-md bg-blue-600 text-white py-3.5 rounded-xl font-black uppercase text-lg shadow-lg">
             Registrar mi número
         </button>
     </div>
@@ -145,11 +151,11 @@
         const overlay = document.getElementById('guia-overlay');
         const txt = document.getElementById('texto-asistente');
         let lang = 'es'; let paso = 0; let elegido = null;
-        let estaEnviando = false; // PROTECCIÓN DUPLICADOS
+        let estaEnviando = false;
 
         const instrucciones = {
-            es: ["¡Excelente! Primero usa este buscador para ver si tu número está libre.", "Ahora elige tu número de la suerte tocándolo aquí abajo.", "¡Muy buena elección! Ahora presiona el botón azul de 'Registrar Número'.", "Para finalizar, escribe tu nombre completo."],
-            maya: ["¡Ma'alob! Kaxt a xook tial a wilik wa yan.", "Bejla’e’ mach untúul xook ti' le xooka'.", "Bejla’e’ mach le botón 'Registrar Número'.", "T'aan a k'áaba' t'aan a bin ti' registro."]
+            es: ["Usa este buscador para ver si tu número está libre.", "Elige tu número de la suerte aquí abajo.", "Ahora presiona 'Registrar Número'.", "Escribe tu nombre completo."],
+            maya: ["Kaxt a xook tial a wilik wa yan.", "Bejla’e’ mach untúul xook.", "Mach le botón 'Registrar Número'.", "T'aan a k'áaba' t'aan a bin."]
         };
 
         function iniciar(l) {
@@ -166,15 +172,13 @@
             if (paso === 0) {
                 asist.className = "pos-busqueda";
                 document.getElementById('area-buscador').classList.add('foco-activo');
-                // Timeout para esperar que el teclado no interfiera en móvil
                 setTimeout(() => document.getElementById('area-buscador').scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
-                txt.innerText = instrucciones[lang][0];
             } else if (paso === 1) {
                 asist.className = "pos-grid";
                 document.getElementById('area-grid').classList.add('foco-activo');
                 document.getElementById('area-grid').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                txt.innerText = instrucciones[lang][1];
             } else { finalizarGuia(); }
+            txt.innerText = instrucciones[lang][paso];
             paso++;
         }
 
@@ -232,43 +236,25 @@
                     let d = document.createElement('div');
                     d.innerText = item.numero; d.id = `num-${item.numero}`;
                     d.className = item.estado === "Vendido" ? 'numero ocupado' : 'numero';
-                    if(item.estado !== "Vendido") {
-                        d.onclick = () => seleccionar(item.numero);
-                    }
+                    if(item.estado !== "Vendido") d.onclick = () => seleccionar(item.numero);
                     grid.appendChild(d);
                 });
-            } catch (e) { console.error("Error cargando datos"); }
+            } catch (e) { console.error("Error"); }
         }
         cargar();
 
         async function confirmarTodo() {
-            if (estaEnviando) return; // BLOQUEO DE DOBLE CLIC
-            
+            if (estaEnviando) return;
             const nombre = document.getElementById('nombre-input').value.trim();
-            // VALIDACIÓN MEJORADA
-            if (nombre.length < 8 || !nombre.includes(' ')) {
-                return alert("Por favor ingresa tu nombre y apellido completo.");
-            }
-
+            if (nombre.length < 8 || !nombre.includes(' ')) return alert("Ingresa tu nombre y apellido.");
             estaEnviando = true;
             const btn = document.getElementById('btn-confirmar');
             btn.innerText = "PROCESANDO...";
-            btn.style.opacity = "0.5";
-            txt.innerText = "Registrando tu lugar...";
-
             try {
-                await fetch(SCRIPT_URL, { 
-                    method: "POST", 
-                    mode: "no-cors", 
-                    body: JSON.stringify({ numeros: [elegido], nombre: nombre }) 
-                });
-                
+                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ numeros: [elegido], nombre: nombre }) });
                 window.open(`https://wa.me/5216144662162?text=Hola, registré el número ${elegido} a nombre de ${nombre}`);
                 location.reload();
-            } catch (e) { 
-                alert("Hubo un error, reintentando...");
-                location.reload(); 
-            }
+            } catch (e) { location.reload(); }
         }
     </script>
 </body>
