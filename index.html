@@ -24,28 +24,27 @@
             display: flex; flex-direction: column-reverse; 
             align-items: center; width: 300px; 
         }
-        .maya-img { width: 120px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); transform: rotate(90deg); }
+        
+        .maya-img { width: 120px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); }
         
         .pos-centro { top: 50%; left: 50%; transform: translate(-50%, -50%) !important; }
-        .pos-busqueda { top: 160px; right: 60px; transform: scale(0.85) !important; }
-        .pos-grid { top: 40px; right: 60px; transform: scale(0.75) !important; }
+        .pos-busqueda { top: 160px; right: 20px; transform: scale(0.85) !important; }
+        .pos-grid { top: 40px; right: 20px; transform: scale(0.75) !important; }
         
-        /* POSICIÓN LATERAL DERECHA CENTRADA */
-        .pos-lateral { top: 50%; right: -120px; transform: translateY(-50%) scale(0.6) !important; opacity: 0.5; }
+        .pos-lateral { top: 50%; right: -180px; transform: translateY(-50%) scale(0.6) !important; opacity: 0.5; }
+        @media (min-width: 768px) { .pos-lateral { right: -120px; } }
         .pos-lateral:hover { right: -100px; opacity: 1; }
 
-        .foco-activo { 
-            position: relative !important; 
-            z-index: 501 !important; 
-            background: white !important;
-            box-shadow: 0 0 40px rgba(59, 130, 246, 0.8) !important;
+        .grid-container { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 6px; 
+            max-width: 1200px; 
+            margin: 0 auto;
+            min-height: 500px; /* EVITA EL SALTO DE CARGA */
         }
-
-        .sticky-header { position: sticky; top: 0; z-index: 300; background: #0f172a; color: white; }
-        .logo-text { font-weight: 800; font-style: italic; text-transform: uppercase; font-size: 1.3rem; }
-        .logo-del { color: #3b82f6; }
-
-        .grid-container { display: grid; grid-template-columns: repeat(20, 1fr); gap: 6px; max-width: 1200px; }
+        @media (min-width: 768px) { .grid-container { grid-template-columns: repeat(10, 1fr); } }
+        @media (min-width: 1024px) { .grid-container { grid-template-columns: repeat(20, 1fr); } }
 
         .numero { 
             aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; 
@@ -64,8 +63,14 @@
 
         .seleccionado { background: #1d4ed8 !important; color: white !important; border: none; }
         .ocupado { background: #f8fafc !important; color: #cbd5e1 !important; cursor: not-allowed; border: 1px dashed #cbd5e1; }
-        
         .btn-close { position: absolute; top: 10px; right: 15px; color: #cbd5e1; cursor: pointer; font-size: 1.2rem; }
+
+        .foco-activo { 
+            position: relative !important; 
+            z-index: 501 !important; 
+            background: white !important;
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.8) !important;
+        }
     </style>
 </head>
 <body>
@@ -85,86 +90,66 @@
 
             <div id="form-nombre" class="hidden flex flex-col gap-3">
                 <input type="text" id="nombre-input" placeholder="Nombre Completo" class="w-full p-4 border-2 border-slate-100 rounded-xl font-bold text-center outline-none focus:border-blue-600">
-                <button onclick="confirmarTodo()" class="bg-green-600 text-white py-4 rounded-xl font-black uppercase text-xs">Confirmar Registro</button>
+                <button id="btn-confirmar" onclick="confirmarTodo()" class="bg-green-600 text-white py-4 rounded-xl font-black uppercase text-xs">Confirmar Registro</button>
             </div>
             
             <button id="btn-next" onclick="proximoPaso()" class="hidden w-full bg-blue-600 text-white py-3 rounded-xl font-black uppercase text-xs mt-2">Entendido →</button>
         </div>
     </div>
 
-    <nav class="sticky-header py-4 px-10 flex justify-between items-center shadow-xl">
-        <div class="flex items-center gap-3">
-            <img src="logo.png" alt="Logo" class="h-10">
-            <span class="logo-text">Rifas <span class="logo-del">del</span> Pueblo</span>
+    <nav class="sticky top-0 z-[300] bg-[#0f172a] py-3 px-4 md:px-10 flex justify-between items-center shadow-xl">
+        <div class="flex items-center gap-2">
+            <img src="logo.png" alt="Logo" class="h-8 md:h-10">
+            <span class="text-white font-extrabold italic uppercase text-sm md:text-xl">Rifas <span class="text-blue-500">del</span> Pueblo</span>
         </div>
-        <div class="flex gap-4">
-            <a href="#" class="flex items-center gap-2 bg-[#1877F2] text-white px-5 py-2.5 rounded-full font-bold text-xs"><i class="fab fa-facebook-f"></i> Facebook</a>
-            <a href="#" class="flex items-center gap-2 bg-[#25D366] text-white px-5 py-2.5 rounded-full font-bold text-xs"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-            <button class="bg-[#FFD700] text-black px-5 py-2.5 rounded-full font-black text-xs shadow-md"><i class="fas fa-camera"></i> ENTREGAS</button>
+        <div class="flex gap-2">
+            <a href="https://www.facebook.com/profile.php?id=168173419701763" target="_blank" class="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 bg-[#1877F2] text-white rounded-full"><i class="fab fa-facebook-f md:mr-2"></i><span class="hidden md:inline text-xs font-bold">Facebook</span></a>
+            <a href="https://wa.me/5216144662162" target="_blank" class="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 bg-[#25D366] text-white rounded-full"><i class="fab fa-whatsapp md:mr-2"></i><span class="hidden md:inline text-xs font-bold">WhatsApp</span></a>
+            <button class="bg-[#FFD700] text-black h-9 px-3 md:px-5 rounded-full font-black text-[9px] md:text-xs shadow-md uppercase">Entregas</button>
         </div>
     </nav>
 
-    <header class="flex flex-col items-center py-12">
-        <img src="tv-hisense.png" alt="TV" class="w-[400px] drop-shadow-2xl mb-10 transition-transform hover:scale-105 duration-500">
+    <header class="flex flex-col items-center py-8">
+        <img src="tv-hisense.png" alt="TV" class="w-[280px] md:w-[400px] drop-shadow-2xl mb-6">
         <div class="text-center px-4 max-w-2xl">
-            <h1 class="text-4xl md:text-5xl font-extrabold uppercase italic tracking-tighter text-slate-900 leading-none">
+            <h1 class="text-2xl md:text-5xl font-extrabold uppercase italic tracking-tighter text-slate-900 leading-none">
                 ¡Gánate un SMART TV 50´´ <br>
                 <span class="text-blue-600">FULL HD GRATIS!</span>
             </h1>
-            <div class="mt-4 flex flex-col items-center">
-                <div class="h-1 w-20 bg-blue-600 rounded-full mb-4"></div>
-                <p class="text-slate-500 font-bold text-sm uppercase tracking-[0.2em]">
-                    Solo sigue los pasos descritos en FB
-                </p>
-            </div>
-
-            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-100 pt-8">
-                <div class="bg-slate-50 p-4 rounded-2xl">
-                    <p class="text-[10px] uppercase font-black text-blue-600">Sorteo con</p>
-                    <p class="text-sm font-bold text-slate-800">Lotería Nacional</p>
-                </div>
-                <div class="bg-slate-50 p-4 rounded-2xl">
-                    <p class="text-[10px] uppercase font-black text-blue-600">Fecha del Evento</p>
-                    <p class="text-sm font-bold text-slate-800">6 de Enero</p>
-                </div>
-                <div class="bg-slate-50 p-4 rounded-2xl">
-                    <p class="text-[10px] uppercase font-black text-blue-600">Transmisión</p>
-                    <p class="text-sm font-bold text-slate-800">En Vivo (FB)</p>
-                </div>
-            </div>
         </div>
     </header>
 
-    <div id="area-buscador" class="py-6 bg-white transition-all duration-300">
-        <div class="max-w-xl mx-auto px-4">
-            <input type="number" id="buscador" oninput="buscar()" placeholder="Busca tu número de la suerte aquí..." class="w-full p-5 rounded-2xl border-2 border-slate-200 outline-none font-bold text-center text-lg">
+    <div id="area-buscador" class="py-4 bg-white transition-all duration-300">
+        <div class="max-w-xl mx-auto px-6">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" id="buscador" oninput="buscar()" placeholder="Busca tu número aquí..." class="w-full p-4 rounded-xl border-2 border-slate-200 outline-none font-bold text-center">
         </div>
     </div>
 
-    <main id="area-grid" class="py-10 px-10 bg-white transition-all duration-300">
-        <div class="max-w-[1250px] mx-auto bg-white p-8 rounded-[40px] shadow-2xl border border-slate-100">
-            <div class="grid-container" id="grid-numeros"></div>
+    <main id="area-grid" class="py-6 px-3 md:px-10 bg-white transition-all duration-300">
+        <div class="max-w-[1250px] mx-auto bg-white p-3 md:p-8 rounded-[25px] md:rounded-[40px] shadow-2xl border border-slate-100">
+            <div class="grid-container" id="grid-numeros">
+                </div>
         </div>
     </main>
 
-    <div class="fixed bottom-0 inset-x-0 p-4 bg-white/90 backdrop-blur-md border-t flex justify-center z-[300]">
-        <button onclick="pedirNombre()" id="btn-registrar" class="w-full max-w-md bg-blue-600 text-white py-3.5 rounded-xl font-black uppercase text-lg shadow-lg hover:bg-blue-800 transition-all">
+    <div class="fixed bottom-0 inset-x-0 p-3 bg-white/90 backdrop-blur-md border-t flex justify-center z-[300]">
+        <button onclick="pedirNombre()" id="btn-registrar" class="w-full max-w-md bg-blue-600 text-white py-3.5 rounded-xl font-black uppercase text-lg shadow-lg active:scale-95 transition-all">
             Registrar mi número
         </button>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5DtknopaEk6CoentxuqUsc9XPJpM5KbIbngmqffLfzEwH5PvG-FqW8Vf_jFqdxqTs/exec";
-        const FB_PAGE_ID = "168173419701763"; 
-
+        
         const asist = document.getElementById('asistente-maya');
         const overlay = document.getElementById('guia-overlay');
         const txt = document.getElementById('texto-asistente');
         let lang = 'es'; let paso = 0; let elegido = null;
+        let estaEnviando = false; // PROTECCIÓN DUPLICADOS
 
         const instrucciones = {
-            es: ["¡Excelente! Primero usa este buscador para ver si tu número está libre.", "Ahora elige tu número de la suerte tocándolo aquí abajo.", "¡Muy buena elección! Ahora presiona el botón azul de 'Registrar Número' aquí abajo.", "Para finalizar, escribe tu nombre completo."],
-            maya: ["¡Ma'alob! Kaxt a xook tial a wilik wa yan.", "Bejla’e’ mach untúul xook ti' le xooka'.", "Bejla’e’ mach le botón 'Registrar Número'.", "T'aan a k'áaba' tial u bin ti' registro."]
+            es: ["¡Excelente! Primero usa este buscador para ver si tu número está libre.", "Ahora elige tu número de la suerte tocándolo aquí abajo.", "¡Muy buena elección! Ahora presiona el botón azul de 'Registrar Número'.", "Para finalizar, escribe tu nombre completo."],
+            maya: ["¡Ma'alob! Kaxt a xook tial a wilik wa yan.", "Bejla’e’ mach untúul xook ti' le xooka'.", "Bejla’e’ mach le botón 'Registrar Número'.", "T'aan a k'áaba' t'aan a bin ti' registro."]
         };
 
         function iniciar(l) {
@@ -178,18 +163,16 @@
         function proximoPaso() {
             document.getElementById('area-buscador').classList.remove('foco-activo');
             document.getElementById('area-grid').classList.remove('foco-activo');
-
             if (paso === 0) {
                 asist.className = "pos-busqueda";
-                const buscadorArea = document.getElementById('area-buscador');
-                buscadorArea.classList.add('foco-activo');
-                buscadorArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                document.getElementById('area-buscador').classList.add('foco-activo');
+                // Timeout para esperar que el teclado no interfiera en móvil
+                setTimeout(() => document.getElementById('area-buscador').scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
                 txt.innerText = instrucciones[lang][0];
             } else if (paso === 1) {
                 asist.className = "pos-grid";
-                const gridArea = document.getElementById('area-grid');
-                gridArea.classList.add('foco-activo');
-                gridArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                document.getElementById('area-grid').classList.add('foco-activo');
+                document.getElementById('area-grid').scrollIntoView({ behavior: 'smooth', block: 'center' });
                 txt.innerText = instrucciones[lang][1];
             } else { finalizarGuia(); }
             paso++;
@@ -199,10 +182,8 @@
             let valor = document.getElementById('buscador').value;
             document.querySelectorAll('.numero').forEach(n => n.classList.remove('encontrado-flash'));
             if (!valor) return;
-
             let numId = valor.toString().padStart(3, '0');
             const el = document.getElementById(`num-${numId}`);
-            
             if (el) {
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 el.classList.add('encontrado-flash');
@@ -211,14 +192,15 @@
         }
 
         function seleccionar(numero) {
-            if(elegido) document.getElementById(`num-${elegido}`).classList.remove('seleccionado');
+            if(elegido) {
+                const prev = document.getElementById(`num-${elegido}`);
+                if(prev) prev.classList.remove('seleccionado');
+            }
             elegido = numero;
             document.getElementById(`num-${numero}`).classList.add('seleccionado');
-            
             document.getElementById('area-grid').classList.remove('foco-activo');
             overlay.style.display = "none"; 
-
-            asist.className = "fixed bottom-24 right-10 scale-90";
+            asist.className = "fixed bottom-24 right-4 scale-75";
             document.getElementById('burbuja').style.display = "block";
             txt.innerText = instrucciones[lang][2];
             document.getElementById('btn-next').classList.add('hidden');
@@ -236,36 +218,57 @@
             overlay.style.display = "none";
             document.getElementById('area-buscador').classList.remove('foco-activo');
             document.getElementById('area-grid').classList.remove('foco-activo');
-            asist.className = "pos-lateral"; // CAMBIO A POSICIÓN DERECHA CENTRADA
+            asist.className = "pos-lateral";
             document.getElementById('burbuja').style.display = "none";
         }
 
         async function cargar() {
-            const res = await fetch(SCRIPT_URL);
-            const data = await res.json();
-            const grid = document.getElementById('grid-numeros');
-            grid.innerHTML = "";
-            data.forEach(item => {
-                let d = document.createElement('div');
-                d.innerText = item.numero; d.id = `num-${item.numero}`;
-                d.className = item.estado === "Vendido" ? 'numero ocupado' : 'numero';
-                if(item.estado !== "Vendido") {
-                    d.onclick = () => seleccionar(item.numero);
-                }
-                grid.appendChild(d);
-            });
+            try {
+                const res = await fetch(SCRIPT_URL);
+                const data = await res.json();
+                const grid = document.getElementById('grid-numeros');
+                grid.innerHTML = "";
+                data.forEach(item => {
+                    let d = document.createElement('div');
+                    d.innerText = item.numero; d.id = `num-${item.numero}`;
+                    d.className = item.estado === "Vendido" ? 'numero ocupado' : 'numero';
+                    if(item.estado !== "Vendido") {
+                        d.onclick = () => seleccionar(item.numero);
+                    }
+                    grid.appendChild(d);
+                });
+            } catch (e) { console.error("Error cargando datos"); }
         }
         cargar();
 
         async function confirmarTodo() {
+            if (estaEnviando) return; // BLOQUEO DE DOBLE CLIC
+            
             const nombre = document.getElementById('nombre-input').value.trim();
-            if (nombre.length < 5) return alert("Ingresa tu nombre completo.");
-            txt.innerText = "Registrando...";
+            // VALIDACIÓN MEJORADA
+            if (nombre.length < 8 || !nombre.includes(' ')) {
+                return alert("Por favor ingresa tu nombre y apellido completo.");
+            }
+
+            estaEnviando = true;
+            const btn = document.getElementById('btn-confirmar');
+            btn.innerText = "PROCESANDO...";
+            btn.style.opacity = "0.5";
+            txt.innerText = "Registrando tu lugar...";
+
             try {
-                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ numeros: [elegido], nombre: nombre }) });
-                window.open(`https://m.me/${FB_PAGE_ID}?text=Hola, registré el número ${elegido}`);
+                await fetch(SCRIPT_URL, { 
+                    method: "POST", 
+                    mode: "no-cors", 
+                    body: JSON.stringify({ numeros: [elegido], nombre: nombre }) 
+                });
+                
+                window.open(`https://wa.me/5216144662162?text=Hola, registré el número ${elegido} a nombre de ${nombre}`);
                 location.reload();
-            } catch (e) { location.reload(); }
+            } catch (e) { 
+                alert("Hubo un error, reintentando...");
+                location.reload(); 
+            }
         }
     </script>
 </body>
