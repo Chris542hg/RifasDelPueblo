@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; color: #1e293b; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #1e293b; }
         
         /* GUIAS Y ASISTENTE */
         #guia-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: 8000; display: block; }
@@ -20,8 +20,13 @@
         .pos-guia-top { top: 20px; left: 50%; transform: translateX(-50%) scale(0.85); }
         .pos-registro { bottom: 120px; left: 50%; transform: translateX(-50%) scale(0.9); }
 
-        /* ENFOQUES (FOCO DE LUZ) */
         .foco-activo { position: relative !important; z-index: 8500 !important; box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.85), 0 0 40px #3b82f6 !important; pointer-events: auto !important; }
+
+        /* PRESENCIA DEL PREMIO */
+        .premio-glow { filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5)); animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        
+        .badge-gratis { background: linear-gradient(45deg, #ef4444, #f59e0b); color: white; padding: 4px 12px; border-radius: 99px; font-weight: 900; font-size: 0.75rem; letter-spacing: 1px; display: inline-block; margin-bottom: 8px; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
 
         /* GRID */
         .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; max-width: 1200px; margin: 0 auto; }
@@ -30,7 +35,7 @@
         
         .numero { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: white; font-weight: 800; font-size: 0.8rem; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s; }
         .encontrado-flash { background: #FFD700 !important; color: #000 !important; transform: scale(1.4); z-index: 8600; box-shadow: 0 0 30px #FFD700; border: 2px solid white !important; }
-        .seleccionado { background: #2563eb !important; color: white !important; border: none; transform: scale(1.1); }
+        .seleccionado { background: #2563eb !important; color: white !important; border: none; transform: scale(1.1); box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
         .ocupado { background: #f1f5f9 !important; color: #cbd5e1 !important; cursor: not-allowed; opacity: 0.5; }
     </style>
 </head>
@@ -65,27 +70,36 @@
         </div>
     </nav>
 
-    <header class="text-center py-6">
-        <img src="tv-hisense.png" class="w-48 mx-auto mb-4 drop-shadow-lg">
-        <h1 class="text-2xl font-black uppercase italic leading-none">Smart TV 50´´ <br><span class="text-blue-600">¡GRATIS!</span></h1>
+    <header class="text-center py-10 px-4 bg-white border-b border-slate-100">
+        <div class="max-w-4xl mx-auto">
+            <div class="badge-gratis uppercase">Gran Sorteo</div>
+            <h1 class="text-3xl font-black uppercase italic leading-tight mb-6">
+                ¡Llévate una <span class="text-blue-600">Smart TV 50´´</span><br>totalmente GRATIS!
+            </h1>
+            <div class="relative inline-block">
+                <img src="tv-hisense.png" class="w-64 mx-auto premio-glow relative z-10" alt="Premio Smart TV">
+                <div class="absolute inset-0 bg-blue-400 blur-[60px] opacity-20 rounded-full"></div>
+            </div>
+            <p class="text-slate-500 font-bold text-sm mt-4 uppercase tracking-widest">Escoge tu número de la suerte aquí abajo</p>
+        </div>
     </header>
 
-    <div id="area-buscador" class="sticky top-0 bg-white p-4 z-50 border-b">
+    <div id="area-buscador" class="sticky top-0 bg-white/80 backdrop-blur-md p-4 z-50 border-b">
         <div class="max-w-md mx-auto">
-            <input type="text" inputmode="numeric" id="buscador" oninput="gestionarBusqueda()" maxlength="3" placeholder="Ej: 123" class="w-full p-5 border-2 border-slate-200 rounded-2xl text-center font-black text-2xl shadow-sm outline-none focus:border-blue-500 transition-all">
+            <input type="text" inputmode="numeric" id="buscador" oninput="gestionarBusqueda()" maxlength="3" placeholder="Busca tu número..." class="w-full p-5 border-2 border-blue-100 rounded-2xl text-center font-black text-2xl shadow-sm outline-none focus:border-blue-500 transition-all bg-white">
         </div>
     </div>
 
-    <main class="p-4">
-        <div id="area-grid" class="bg-white p-4 rounded-[30px] border shadow-inner">
+    <main class="p-4 bg-[#f8fafc]">
+        <div id="area-grid" class="bg-white p-4 rounded-[30px] border border-slate-200 shadow-xl">
             <div class="grid-container" id="grid-numeros"></div>
         </div>
     </main>
 
     <div class="h-32"></div>
 
-    <div id="footer-registro" class="fixed bottom-0 inset-x-0 p-5 bg-white/90 border-t backdrop-blur-md z-[7000] flex justify-center">
-        <button onclick="pedirNombre()" id="btn-registrar" class="w-full max-w-md bg-blue-600 text-white py-5 rounded-2xl font-black uppercase text-xl shadow-xl">
+    <div id="footer-registro" class="fixed bottom-0 inset-x-0 p-5 bg-white/95 border-t backdrop-blur-sm z-[7000] flex justify-center">
+        <button onclick="pedirNombre()" id="btn-registrar" class="w-full max-w-md bg-blue-600 text-white py-5 rounded-2xl font-black uppercase text-xl shadow-2xl active:scale-95 transition-all">
             Registrar mi número
         </button>
     </div>
@@ -93,8 +107,8 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5DtknopaEk6CoentxuqUsc9XPJpM5KbIbngmqffLfzEwH5PvG-FqW8Vf_jFqdxqTs/exec";
         const textos = {
-            es: { busca: "Escribe tu número de 3 dígitos arriba.", toca: "O elige uno tocando los cuadros de abajo.", listo: "¡Excelente! Ahora toca Registrar.", nombre: "Escribe tu nombre para apartarlo.", final: "¡Listo! Te envío a Messenger.", reg: "Registrar mi número", ph: "Busca tu número aquí..." },
-            maya: { busca: "Ts'íibta a xook ka'anal.", toca: "T'aka' a xook yanal lelo'.", listo: "¡Jach ma'alob! Beoraé Registrar.", nombre: "Ts'íibta a k'aaba' utia'al a p'atke'.", final: "¡Beyo'! Bin in túuxtitech Messenger.", reg: "P'at in xook", ph: "Kaaxat xook waye'..." }
+            es: { busca: "Busca tu número. Se enfocará al instante.", toca: "O elige uno tocando los cuadros de abajo.", listo: "¡Excelente! Ahora toca Registrar.", nombre: "Escribe tu nombre para apartarlo.", final: "¡Listo! Te envío a Messenger.", reg: "Registrar mi número", ph: "Escribe un número..." },
+            maya: { busca: "Kaaxat a xook. Séeb u chíikpahal.", toca: "T'aka' a xook yanal lelo'.", listo: "¡Jach ma'alob! Beoraé Registrar.", nombre: "Ts'íibta a k'aaba' utia'al a p'atke'.", final: "¡Beyo'! Bin in túuxtitech Messenger.", reg: "P'at in xook", ph: "Kaaxat xook waye'..." }
         };
         let lang = 'es', paso = 0, elegido = null;
 
@@ -120,107 +134,4 @@
             
             if (paso === 0) {
                 maya.className = "pos-guia-top";
-                document.getElementById('area-buscador').classList.add('foco-activo');
-                txt.innerText = textos[lang].busca;
-                paso++;
-            } else if (paso === 1) {
-                document.getElementById('area-grid').classList.add('foco-activo');
-                txt.innerText = textos[lang].toca;
-                paso++;
-            } else { saltarGuia(); }
-        }
-
-        function crearGrid() {
-            const grid = document.getElementById('grid-numeros');
-            grid.innerHTML = "";
-            for (let i = 0; i < 1000; i++) {
-                let n = i.toString().padStart(3, '0');
-                let d = document.createElement('div');
-                d.innerText = n; d.id = `num-${n}`; d.className = 'numero';
-                d.onclick = () => seleccionar(n);
-                grid.appendChild(d);
-            }
-        }
-
-        async function sincronizarGoogle() {
-            try {
-                const res = await fetch(SCRIPT_URL);
-                const data = await res.json();
-                data.forEach(item => {
-                    const el = document.getElementById(`num-${item.numero}`);
-                    if (el && item.estado === "Vendido") {
-                        el.className = 'numero ocupado';
-                        el.onclick = null;
-                    }
-                });
-            } catch(e) { console.warn("Google Sheets Sync Offline"); }
-        }
-
-        function gestionarBusqueda() {
-            let val = document.getElementById('buscador').value;
-            document.querySelectorAll('.encontrado-flash').forEach(e => e.classList.remove('encontrado-flash'));
-            
-            if (val.length === 3) {
-                const el = document.getElementById(`num-${val}`);
-                if (el) {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    el.classList.add('encontrado-flash');
-                    // Si estamos en la guía, avanzamos al siguiente paso tras buscar exitosamente
-                    if (paso === 1) setTimeout(proximoPaso, 1000);
-                }
-            }
-        }
-
-        function seleccionar(n) {
-            if (elegido) document.getElementById(`num-${elegido}`)?.classList.remove('seleccionado');
-            elegido = n;
-            document.getElementById(`num-${n}`).classList.add('seleccionado');
-            document.getElementById('guia-overlay').style.display = "none";
-            document.getElementById('asistente-maya').className = "pos-registro";
-            document.getElementById('texto-asistente').innerText = textos[lang].listo;
-            document.getElementById('btn-next').classList.add('hidden');
-        }
-
-        function pedirNombre() {
-            if (!elegido) return;
-            document.getElementById('guia-overlay').style.display = "block";
-            document.getElementById('asistente-maya').style.display = "flex";
-            document.getElementById('asistente-maya').className = "pos-centro";
-            document.getElementById('texto-asistente').innerText = textos[lang].nombre;
-            document.getElementById('form-nombre').classList.remove('hidden');
-        }
-
-        async function confirmarTodo() {
-            const nom = document.getElementById('nombre-input').value.trim();
-            if (nom.length < 3) return alert("Nombre demasiado corto");
-            
-            const btn = document.getElementById('btn-confirmar');
-            btn.innerText = "..."; btn.disabled = true;
-
-            const params = new URLSearchParams();
-            params.append('numero', elegido);
-            params.append('nombre', nom);
-
-            try {
-                // Envío asíncrono optimizado
-                await fetch(SCRIPT_URL, { 
-                    method: "POST", 
-                    mode: "no-cors", 
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: params.toString() 
-                });
-                document.getElementById('texto-asistente').innerText = textos[lang].final;
-                setTimeout(() => { 
-                    window.location.href = `https://m.me/168173419701763?text=Aparté el ${elegido} - ${nom}`; 
-                }, 1500);
-            } catch(e) { 
-                window.location.reload(); 
-            }
-        }
-
-        // Arranque de la página
-        crearGrid();
-        sincronizarGoogle();
-    </script>
-</body>
-</html>
+                document.
