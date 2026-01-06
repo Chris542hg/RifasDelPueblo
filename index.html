@@ -154,6 +154,22 @@
     </div>
 
     <script>
+        const textos = {
+    es: {
+        busca: "Busca si tu número está libre.",
+        toca: "Toca tu número de la suerte aquí abajo.",
+        listo: "¡Excelente! Ahora presiona Registrar.",
+        nombre: "Escribe tu nombre para apartarlo.",
+        final: "¡Listo! Te envío a Messenger."
+    },
+    maya: {
+        busca: "Kaaxat a xook ti' le buscadora'.",
+        toca: "T'aka' a xook yanal lelo'.",
+        listo: "¡Jach ma'alob! Beoraé t'aka' Registrar.",
+        nombre: "Ts'íibta a k'aaba' utia'al a p'atke'.",
+        final: "¡Beyo'! Bin in túuxtitech Messenger."
+    }
+};
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5DtknopaEk6CoentxuqUsc9XPJpM5KbIbngmqffLfzEwH5PvG-FqW8Vf_jFqdxqTs/exec"; // Asegúrate de que sea la URL de despliegue actual
     
     let lang = 'es'; 
@@ -176,75 +192,70 @@
     }
 
     function proximoPaso() {
-            document.getElementById('area-buscador').classList.remove('foco-activo');
-            document.getElementById('area-grid').classList.remove('foco-activo');
-            
-            if (paso === 0) {
-                document.getElementById('asistente-maya').className = "pos-guia-top";
-                document.getElementById('area-buscador').classList.add('foco-activo');
-                document.getElementById('texto-asistente').innerText = "Busca si tu número está libre.";
-                paso++;
-            } else if (paso === 1) {
-                document.getElementById('asistente-maya').className = "pos-guia-top";
-                document.getElementById('area-grid').classList.add('foco-activo');
-                document.getElementById('texto-asistente').innerText = "Toca tu número de la suerte aquí abajo.";
-                paso++;
-            } else {
-                saltarGuia();
-            }
-        }
+    document.getElementById('area-buscador').classList.remove('foco-activo');
+    document.getElementById('area-grid').classList.remove('foco-activo');
+    
+    if (paso === 0) {
+        document.getElementById('asistente-maya').className = "pos-guia-top";
+        document.getElementById('area-buscador').classList.add('foco-activo');
+        document.getElementById('texto-asistente').innerText = textos[lang].busca;
+        paso++;
+    } else if (paso === 1) {
+        document.getElementById('asistente-maya').className = "pos-guia-top";
+        document.getElementById('area-grid').classList.add('foco-activo');
+        document.getElementById('texto-asistente').innerText = textos[lang].toca;
+        paso++;
+    } else {
+        saltarGuia();
+    }
+}
     function buscar() {
-            let valor = document.getElementById('buscador').value;
-            if (!valor) return;
+    let valor = document.getElementById('buscador').value;
+    if (!valor) return;
 
-            // Limpiamos cualquier resaltado previo (dorado o rojo)
-            document.querySelectorAll('.encontrado-flash, .encontrado-ocupado').forEach(el => {
-                el.classList.remove('encontrado-flash', 'encontrado-ocupado');
-            });
+    // Limpiar resaltados previos
+    document.querySelectorAll('.encontrado-flash, .encontrado-ocupado').forEach(el => {
+        el.classList.remove('encontrado-flash', 'encontrado-ocupado');
+    });
 
-            let numId = valor.toString().padStart(3, '0');
-            const el = document.getElementById(`num-${numId}`);
+    // Formatear ID
+    let numId = valor.toString().padStart(3, '0');
+    const el = document.getElementById(`num-${numId}`);
 
-            if (el) {
-                // Solo activamos el efecto al escribir 2 o más dígitos para mayor precisión
-                if (valor.length >= 2) {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                    // VERIFICACIÓN DE DISPONIBILIDAD
-                    if (el.classList.contains('ocupado')) {
-                        el.classList.add('encontrado-ocupado'); // Si está ocupado -> Rojo
-                    } else {
-                        el.classList.add('encontrado-flash');   // Si está libre -> Dorado
-                        
-                        // Si el usuario está en la guía, avanzar automáticamente al detectar uno libre
-                        if(paso === 1) setTimeout(proximoPaso, 800);
-                    }
+    if (el) {
+        // SOLUCIÓN SCROLL: Usamos un pequeño delay para que el navegador procese el 3er dígito
+        setTimeout(() => {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            if (el.classList.contains('ocupado')) {
+                el.classList.add('encontrado-ocupado');
+            } else {
+                el.classList.add('encontrado-flash');
+                // Si estamos en la guía, avanzamos después de que el usuario vea el número
+                if(paso === 1 && valor.length >= 2) {
+                    setTimeout(proximoPaso, 1000);
                 }
             }
-        }
-    function seleccionar(numero) {
-        if(elegido) document.getElementById(`num-${elegido}`)?.classList.remove('seleccionado');
-        elegido = numero;
-        document.getElementById(`num-${numero}`).classList.add('seleccionado');
-        
-        // Cambiar estado visual para el siguiente paso
-        document.getElementById('guia-overlay').style.display = "none";
-        document.getElementById('area-grid').classList.remove('foco-activo');
-        
-        // Posicionar asistente cerca del botón de registro
-        document.getElementById('asistente-maya').className = "fixed bottom-32 left-1/2 -translate-x-1/2 scale-75";
-        document.getElementById('btn-registrar').classList.add('foco-activo');
-        document.getElementById('btn-next').classList.add('hidden');
-        document.getElementById('texto-asistente').innerText = lang === 'es' ? "¡Excelente! Ahora presiona Registrar." : "¡Jach ma'alob! Beoraé t'aka' Registrar.";
+        }, 50); // 50ms son suficientes para estabilizar la búsqueda
     }
+}
+   function seleccionar(numero) {
+    // ... tu lógica anterior de seleccionado ...
+    elegido = numero;
+    document.getElementById(`num-${numero}`).classList.add('seleccionado');
+    
+    document.getElementById('guia-overlay').style.display = "none";
+    document.getElementById('asistente-maya').className = "fixed bottom-32 left-1/2 -translate-x-1/2 scale-75";
+    document.getElementById('btn-registrar').classList.add('foco-activo');
+    document.getElementById('texto-asistente').innerText = textos[lang].listo;
+}
 
-    function pedirNombre() {
-        if(!elegido) return alert("Primero selecciona un número.");
-        document.getElementById('guia-overlay').style.display = "block";
-        document.getElementById('asistente-maya').className = "pos-centro";
-        document.getElementById('texto-asistente').innerText = lang === 'es' ? "Escribe tu nombre para apartarlo." : "Ts'íibta a k'aaba' utia'al a p'atke'.";
-        document.getElementById('form-nombre').classList.remove('hidden');
-    }
+function pedirNombre() {
+    document.getElementById('guia-overlay').style.display = "block";
+    document.getElementById('asistente-maya').className = "pos-centro";
+    document.getElementById('texto-asistente').innerText = textos[lang].nombre;
+    document.getElementById('form-nombre').classList.remove('hidden');
+}
 
     async function confirmarTodo() {
         const nombre = document.getElementById('nombre-input').value.trim();
@@ -303,6 +314,7 @@
 </script>
 </body>
 </html>
+
 
 
 
