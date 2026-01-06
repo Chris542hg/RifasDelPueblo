@@ -206,22 +206,45 @@
             } catch (e) { location.reload(); }
         }
 
-        async function cargar() {
-            try {
-                const res = await fetch(SCRIPT_URL);
-                const data = await res.json();
-                const grid = document.getElementById('grid-numeros');
-                grid.innerHTML = "";
-                data.forEach(item => {
-                    let d = document.createElement('div');
-                    d.innerText = item.numero; d.id = `num-${item.numero}`;
-                    d.className = item.estado === "Vendido" ? 'numero ocupado' : 'numero';
-                    if(item.estado !== "Vendido") d.onclick = () => seleccionar(item.numero);
-                    grid.appendChild(d);
-                });
-            } catch(e) {}
-        }
+        async function confirmarTodo() {
+    const nom = document.getElementById('nombre-input').value.trim();
+    if (nom.length < 4) return alert(lang === 'es' ? "Nombre completo" : "K'aaba'");
+    
+    const btn = document.getElementById('btn-confirmar');
+    const textoOriginal = btn.innerText;
+    btn.innerText = "..."; 
+    btn.disabled = true;
+
+    // Usamos URLSearchParams para que Google Apps Script lo reciba como parámetros de formulario estándar
+    const formData = new URLSearchParams();
+    formData.append('numero', elegido);
+    formData.append('nombre', nom);
+
+    try {
+        // El modo 'no-cors' es necesario para evitar bloqueos, pero el Script debe estar bien publicado
+        await fetch(SCRIPT_URL, { 
+            method: "POST", 
+            mode: "no-cors", 
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString()
+        });
+
+        // Si llegó aquí, aunque sea no-cors, el navegador envió el paquete
+        document.getElementById('texto-asistente').innerText = textos[lang].final;
+        
+        setTimeout(() => { 
+            window.location.href = `https://m.me/168173419701763?text=Aparté el ${elegido} a nombre de ${nom}`; 
+        }, 2000);
+
+    } catch (e) {
+        console.error("Error al registrar:", e);
+        alert("Hubo un error. Intenta de nuevo.");
+        btn.innerText = textoOriginal;
+        btn.disabled = false;
+    }
+}
         cargar();
     </script>
 </body>
 </html>
+
