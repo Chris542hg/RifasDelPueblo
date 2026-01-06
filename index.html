@@ -74,7 +74,14 @@
             transform: scale(1.6) !important; z-index: 8600 !important;
             box-shadow: 0 0 30px #FFD700 !important; border: 2px solid white !important;
         }
-
+        .encontrado-ocupado {
+            background: #ef4444 !important; /* Rojo */
+            color: white !important;
+            transform: scale(1.6) !important;
+            z-index: 8600 !important;
+            box-shadow: 0 0 30px #ef4444 !important;
+            border: 2px solid white !important;
+        }
         .seleccionado { background: #1d4ed8 !important; color: white !important; border: none; }
         .ocupado { background: #f8fafc !important; color: #cbd5e1 !important; cursor: not-allowed; }
 
@@ -187,24 +194,34 @@
             }
         }
     function buscar() {
-        // Limpiar flash anterior
-        document.querySelectorAll('.encontrado-flash').forEach(el => el.classList.remove('encontrado-flash'));
-        
-        let valor = document.getElementById('buscador').value;
-        if (!valor || valor.length < 1) return;
-        
-        // Formatear a 3 dígitos (ej: 5 -> 005)
-        let numId = valor.toString().padStart(3, '0');
-        const el = document.getElementById(`num-${numId}`);
-        
-        if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            el.classList.add('encontrado-flash');
-            // Si está en el paso de buscar, avanzar automáticamente
-            if(paso === 1) setTimeout(proximoPaso, 1000); 
-        }
-    }
+            let valor = document.getElementById('buscador').value;
+            if (!valor) return;
 
+            // Limpiamos cualquier resaltado previo (dorado o rojo)
+            document.querySelectorAll('.encontrado-flash, .encontrado-ocupado').forEach(el => {
+                el.classList.remove('encontrado-flash', 'encontrado-ocupado');
+            });
+
+            let numId = valor.toString().padStart(3, '0');
+            const el = document.getElementById(`num-${numId}`);
+
+            if (el) {
+                // Solo activamos el efecto al escribir 2 o más dígitos para mayor precisión
+                if (valor.length >= 2) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    // VERIFICACIÓN DE DISPONIBILIDAD
+                    if (el.classList.contains('ocupado')) {
+                        el.classList.add('encontrado-ocupado'); // Si está ocupado -> Rojo
+                    } else {
+                        el.classList.add('encontrado-flash');   // Si está libre -> Dorado
+                        
+                        // Si el usuario está en la guía, avanzar automáticamente al detectar uno libre
+                        if(paso === 1) setTimeout(proximoPaso, 800);
+                    }
+                }
+            }
+        }
     function seleccionar(numero) {
         if(elegido) document.getElementById(`num-${elegido}`)?.classList.remove('seleccionado');
         elegido = numero;
@@ -286,5 +303,6 @@
 </script>
 </body>
 </html>
+
 
 
