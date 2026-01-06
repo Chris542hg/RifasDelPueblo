@@ -3,60 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rifas del Pueblo</title>
+    <title>Rifas del Pueblo - Smart TV</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #ffffff; color: #1e293b; overflow-x: hidden; }
         
-        /* CAPAS MAESTRAS */
-        #guia-overlay { 
-            position: fixed; inset: 0; 
-            background: rgba(15, 23, 42, 0.85); 
-            z-index: 8000; display: block; 
-        }
-
+        /* CAPAS DE UI */
+        #guia-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 8000; display: block; }
+        
         #asistente-maya { 
-            position: fixed; 
-            z-index: 9999; 
-            display: flex; flex-direction: column-reverse; 
-            align-items: center; width: 320px;
-            pointer-events: none; /* El contenedor no bloquea, sus hijos sí */
-            transition: all 0.5s ease-in-out;
+            position: fixed; z-index: 9000; display: flex; flex-direction: column-reverse; 
+            align-items: center; width: 340px; transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            pointer-events: none; 
         }
 
-        .burbuja-dialogo {
-            background: white; padding: 24px; border-radius: 30px;
-            border: 4px solid #2563eb; shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            width: 100%; pointer-events: auto; /* Permite clics aquí */
-            position: relative;
+        .burbuja-dialogo { 
+            background: white; padding: 28px; border-radius: 35px; border: 4px solid #2563eb; 
+            width: 100%; pointer-events: auto; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4);
         }
-        
-        .maya-img { width: 120px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3)); pointer-events: none; }
-        
+
+        .btn-idioma { position: relative; z-index: 10001 !important; pointer-events: auto !important; }
+
+        /* POSICIONAMIENTO */
         .pos-centro { top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        .pos-guia-top { top: 20px; left: 50%; transform: translateX(-50%) scale(0.8); }
-        .pos-registro { bottom: 120px; left: 50%; transform: translateX(-50%) scale(0.9); }
+        .pos-guia-top { top: 30px; left: 50%; transform: translateX(-50%) scale(0.85); }
+        .pos-registro { bottom: 130px; left: 50%; transform: translateX(-50%) scale(0.9); }
 
-        /* BUSCADOR Y FOCO */
-        #area-buscador { position: sticky; top: 0; z-index: 100; background: white; padding: 15px 0; }
+        /* FOCO DE LUZ */
+        #area-buscador { position: sticky; top: 0; z-index: 100; background: white; padding: 15px 0; border-bottom: 1px solid #f1f5f9; }
         .foco-activo { 
             position: relative !important; z-index: 8500 !important; 
-            box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.85), 0 0 40px rgba(59, 130, 246, 0.5) !important;
-            pointer-events: auto !important;
+            box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.85), 0 0 50px rgba(59, 130, 246, 0.6) !important; 
+            pointer-events: auto !important; 
         }
 
         /* GRID */
         .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; max-width: 1200px; margin: 0 auto; }
         @media (min-width: 768px) { .grid-container { grid-template-columns: repeat(10, 1fr); } }
         @media (min-width: 1024px) { .grid-container { grid-template-columns: repeat(20, 1fr); } }
-
-        .numero { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: white; font-weight: 700; font-size: 0.75rem; border: 1px solid #e2e8f0; cursor: pointer; }
-        .encontrado-flash { background: #FFD700 !important; color: black !important; transform: scale(1.6); z-index: 8600 !important; box-shadow: 0 0 30px #FFD700; }
-        .encontrado-ocupado { background: #ef4444 !important; color: white !important; transform: scale(1.6); z-index: 8600 !important; box-shadow: 0 0 30px #ef4444; }
-        .seleccionado { background: #1d4ed8 !important; color: white !important; }
-        .ocupado { background: #f8fafc !important; color: #cbd5e1 !important; cursor: not-allowed; }
+        
+        .numero { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: white; font-weight: 800; font-size: 0.8rem; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s; }
+        .encontrado-flash { background: #FFD700 !important; color: black !important; transform: scale(1.6); z-index: 8600 !important; box-shadow: 0 0 30px #FFD700; border: 2px solid white !important; }
+        .seleccionado { background: #2563eb !important; color: white !important; border: none; transform: scale(1.1); }
+        .ocupado { background: #f1f5f9 !important; color: #cbd5e1 !important; cursor: not-allowed; opacity: 0.4; }
+        
+        /* ESTADO ERROR */
+        .base-error { border-color: #ef4444 !important; }
+        .text-error { color: #ef4444 !important; }
     </style>
 </head>
 <body>
@@ -64,19 +59,21 @@
     <div id="guia-overlay"></div>
     
     <div id="asistente-maya" class="pos-centro">
-        <img src="asist.png" alt="Asistente" class="maya-img">
-        <div class="burbuja-dialogo shadow-2xl">
-            <div id="btn-cerrar-guia" onclick="saltarGuia()" class="absolute top-4 right-4 text-slate-400 cursor-pointer"><i class="fas fa-times text-xl"></i></div>
+        <img src="asist.png" alt="Asistente" class="w-[130px] drop-shadow-2xl">
+        <div id="burbuja" class="burbuja-dialogo">
+            <div onclick="saltarGuia()" class="absolute top-4 right-4 text-slate-300 cursor-pointer p-1"><i class="fas fa-times text-xl"></i></div>
 
-            <p id="texto-asistente" class="text-sm font-black text-slate-800 leading-tight mb-4 text-center">¡Hola! Soy tu asistente.<br>¿En qué idioma te ayudo?</p>
+            <p id="texto-asistente" class="text-base font-extrabold text-slate-800 leading-tight mb-6 text-center">
+                ¡Hola! Soy tu asistente.<br>¿En qué idioma te ayudo?
+            </p>
             
-            <div id="selector-idioma" class="flex flex-col gap-2">
-                <button type="button" onclick="iniciar('es')" class="bg-blue-600 text-white py-4 rounded-xl font-black text-xs uppercase w-full shadow-lg active:scale-95 transition-transform">Español</button>
-                <button type="button" onclick="iniciar('maya')" class="bg-slate-900 text-white py-4 rounded-xl font-black text-xs uppercase w-full shadow-lg active:scale-95 transition-transform">Maya T'aan</button>
+            <div id="selector-idioma" class="flex flex-col gap-3">
+                <button onclick="iniciar('es')" class="btn-idioma bg-blue-600 text-white py-5 rounded-2xl font-black text-sm uppercase w-full shadow-xl active:scale-95">Español</button>
+                <button onclick="iniciar('maya')" class="btn-idioma bg-slate-900 text-white py-5 rounded-2xl font-black text-sm uppercase w-full shadow-xl active:scale-95">Maya T'aan</button>
             </div>
 
             <div id="form-nombre" class="hidden flex flex-col gap-3">
-                <input type="text" id="nombre-input" placeholder="Nombre Completo" class="w-full p-4 border-2 border-slate-100 rounded-xl font-bold text-center outline-none focus:border-blue-500">
+                <input type="text" id="nombre-input" placeholder="Nombre Completo" class="w-full p-4 border-2 border-slate-200 rounded-xl font-bold text-center outline-none focus:border-blue-500">
                 <button id="btn-confirmar" onclick="confirmarTodo()" class="bg-green-600 text-white py-4 rounded-xl font-black uppercase text-xs">Confirmar Registro</button>
             </div>
             
@@ -84,167 +81,7 @@
         </div>
     </div>
 
-    <nav class="bg-[#0f172a] py-3 px-4 flex justify-between items-center shadow-xl">
+    <nav class="bg-[#0f172a] py-4 px-6 flex justify-between items-center shadow-2xl">
         <div class="flex items-center gap-2">
             <img src="logo.png" alt="Logo" class="h-8">
-            <span class="text-white font-extrabold italic uppercase text-sm">Rifas <span class="text-blue-500">del</span> Pueblo</span>
-        </div>
-    </nav>
-
-    <header class="flex flex-col items-center py-6">
-        <img src="tv-hisense.png" alt="TV" class="w-[180px] mb-4">
-        <h1 class="text-xl font-extrabold uppercase italic text-center px-4">¡Gánate un SMART TV 50´´ <br> <span class="text-blue-600">FULL HD GRATIS!</span></h1>
-    </header>
-
-    <div id="area-buscador">
-        <div class="max-w-xl mx-auto px-6">
-            <input type="text" inputmode="numeric" id="buscador" oninput="buscar()" placeholder="Busca tu número aquí..." class="w-full p-4 rounded-xl border-2 border-slate-200 outline-none font-bold text-center">
-        </div>
-    </div>
-
-    <main class="py-6 px-3">
-        <div id="area-grid" class="max-w-[1250px] mx-auto bg-white p-3 rounded-[25px] border border-slate-100">
-            <div class="grid-container" id="grid-numeros"></div>
-        </div>
-    </main>
-
-    <div class="h-28"></div>
-
-    <div id="footer-registro" class="fixed bottom-0 inset-x-0 p-4 bg-white/95 border-t flex justify-center z-[7000]">
-        <button onclick="pedirNombre()" id="btn-registrar" class="w-full max-w-md bg-blue-600 text-white py-4 rounded-xl font-black uppercase text-lg shadow-xl">
-            Registrar mi número
-        </button>
-    </div>
-
-    <script>
-        const textos = {
-            es: { busca: "Busca si tu número está libre.", toca: "Toca tu número de la suerte aquí abajo.", listo: "¡Excelente! Ahora presiona Registrar.", nombre: "Escribe tu nombre para apartarlo.", final: "¡Listo! Te envío a Messenger.", entendido: "Entendido →", btnReg: "Registrar mi número", ph: "Busca tu número aquí..." },
-            maya: { busca: "Kaaxat a xook ti' le buscadora'.", toca: "T'aka' a xook yanal lelo'.", listo: "¡Jach ma'alob! Beoraé t'aka' Registrar.", nombre: "Ts'íibta a k'aaba' utia'al a p'atke'.", final: "¡Beyo'! Bin in túuxtitech Messenger.", entendido: "Na'atbi →", btnReg: "P'at in xook", ph: "Kaaxat a xook waye'..." }
-        };
-
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5DtknopaEk6CoentxuqUsc9XPJpM5KbIbngmqffLfzEwH5PvG-FqW8Vf_jFqdxqTs/exec"; 
-        let lang = 'es'; let paso = 0; let elegido = null;
-
-        function saltarGuia() {
-            document.getElementById('guia-overlay').style.display = "none";
-            document.getElementById('asistente-maya').style.display = "none";
-            document.querySelectorAll('.foco-activo').forEach(el => el.classList.remove('foco-activo'));
-        }
-
-        function iniciar(l) {
-            lang = l;
-            document.getElementById('btn-next').innerText = textos[lang].entendido;
-            document.getElementById('btn-registrar').innerText = textos[lang].btnReg;
-            document.getElementById('buscador').placeholder = textos[lang].ph;
-            document.getElementById('selector-idioma').classList.add('hidden');
-            document.getElementById('btn-next').classList.remove('hidden');
-            proximoPaso();
-        }
-
-        function proximoPaso() {
-            document.querySelectorAll('.foco-activo').forEach(el => el.classList.remove('foco-activo'));
-            if (paso === 0) {
-                document.getElementById('asistente-maya').className = "pos-guia-top";
-                document.getElementById('area-buscador').classList.add('foco-activo');
-                document.getElementById('texto-asistente').innerText = textos[lang].busca;
-                paso++;
-            } else if (paso === 1) {
-                document.getElementById('asistente-maya').className = "pos-guia-top";
-                document.getElementById('area-grid').classList.add('foco-activo');
-                document.getElementById('texto-asistente').innerText = textos[lang].toca;
-                paso++;
-            } else { saltarGuia(); }
-        }
-
-        function buscar() {
-            let val = document.getElementById('buscador').value;
-            if (!val) return;
-            document.querySelectorAll('.encontrado-flash, .encontrado-ocupado').forEach(el => el.classList.remove('encontrado-flash', 'encontrado-ocupado'));
-            let numId = val.toString().padStart(3, '0');
-            const el = document.getElementById(`num-${numId}`);
-            if (el) {
-                setTimeout(() => {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    if (el.classList.contains('ocupado')) { el.classList.add('encontrado-ocupado'); }
-                    else { 
-                        el.classList.add('encontrado-flash'); 
-                        if(paso === 1 && val.length >= 2) setTimeout(proximoPaso, 1000);
-                    }
-                }, 150);
-            }
-        }
-
-        function seleccionar(n) {
-            if(elegido) document.getElementById(`num-${elegido}`)?.classList.remove('seleccionado');
-            elegido = n;
-            document.getElementById(`num-${n}`).classList.add('seleccionado');
-            document.getElementById('guia-overlay').style.display = "none";
-            document.getElementById('asistente-maya').className = "pos-registro";
-            document.getElementById('btn-registrar').classList.add('foco-activo');
-            document.getElementById('btn-next').classList.add('hidden');
-            document.getElementById('texto-asistente').innerText = textos[lang].listo;
-        }
-
-        function pedirNombre() {
-            if(!elegido) return;
-            document.getElementById('guia-overlay').style.display = "block";
-            document.getElementById('asistente-maya').style.display = "flex";
-            document.getElementById('asistente-maya').className = "pos-centro";
-            document.getElementById('texto-asistente').innerText = textos[lang].nombre;
-            document.getElementById('form-nombre').classList.remove('hidden');
-        }
-
-        async function confirmarTodo() {
-            const nom = document.getElementById('nombre-input').value.trim();
-            if (nom.length < 4) return alert(lang==='es'?"Nombre completo":"K'aaba'");
-            const btn = document.getElementById('btn-confirmar');
-            btn.innerText = "..."; btn.disabled = true;
-            try {
-                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ numero: elegido, nombre: nom }) });
-                document.getElementById('texto-asistente').innerText = textos[lang].final;
-                setTimeout(() => { window.location.href = `https://m.me/168173419701763?text=Aparté el ${elegido} - ${nom}`; }, 2000);
-            } catch (e) { location.reload(); }
-        }
-
-        async function confirmarTodo() {
-    const nom = document.getElementById('nombre-input').value.trim();
-    if (nom.length < 4) return alert(lang === 'es' ? "Nombre completo" : "K'aaba'");
-    
-    const btn = document.getElementById('btn-confirmar');
-    const textoOriginal = btn.innerText;
-    btn.innerText = "..."; 
-    btn.disabled = true;
-
-    // Usamos URLSearchParams para que Google Apps Script lo reciba como parámetros de formulario estándar
-    const formData = new URLSearchParams();
-    formData.append('numero', elegido);
-    formData.append('nombre', nom);
-
-    try {
-        // El modo 'no-cors' es necesario para evitar bloqueos, pero el Script debe estar bien publicado
-        await fetch(SCRIPT_URL, { 
-            method: "POST", 
-            mode: "no-cors", 
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: formData.toString()
-        });
-
-        // Si llegó aquí, aunque sea no-cors, el navegador envió el paquete
-        document.getElementById('texto-asistente').innerText = textos[lang].final;
-        
-        setTimeout(() => { 
-            window.location.href = `https://m.me/168173419701763?text=Aparté el ${elegido} a nombre de ${nom}`; 
-        }, 2000);
-
-    } catch (e) {
-        console.error("Error al registrar:", e);
-        alert("Hubo un error. Intenta de nuevo.");
-        btn.innerText = textoOriginal;
-        btn.disabled = false;
-    }
-}
-        cargar();
-    </script>
-</body>
-</html>
-
+            <span class="text-white font-extrabold italic uppercase text-sm">Rifas <span class="text-blue-5
