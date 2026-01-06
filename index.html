@@ -147,101 +147,141 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5DtknopaEk6CoentxuqUsc9XPJpM5KbIbngmqffLfzEwH5PvG-FqW8Vf_jFqdxqTs/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5DtknopaEk6CoentxuqUsc9XPJpM5KbIbngmqffLfzEwH5PvG-FqW8Vf_jFqdxqTs/exec"; // Asegúrate de que sea la URL de despliegue actual
+    
+    let lang = 'es'; 
+    let paso = 0; 
+    let elegido = null;
+
+    function saltarGuia() {
+        document.getElementById('guia-overlay').style.display = "none";
+        document.getElementById('asistente-maya').style.display = "none";
+        document.getElementById('area-buscador').classList.remove('foco-activo');
+        document.getElementById('area-grid').classList.remove('foco-activo');
+        document.getElementById('btn-registrar').classList.remove('foco-activo');
+    }
+
+    function iniciar(l) {
+        lang = l;
+        document.getElementById('selector-idioma').classList.add('hidden');
+        document.getElementById('btn-next').classList.remove('hidden');
+        proximoPaso();
+    }
+
+    function proximoPaso() {
+        document.getElementById('area-buscador').classList.remove('foco-activo');
+        document.getElementById('area-grid').classList.remove('foco-activo');
         
-        let lang = 'es'; let paso = 0; let elegido = null;
-
-        function saltarGuia() {
-            document.getElementById('guia-overlay').style.display = "none";
-            document.getElementById('asistente-maya').style.display = "none";
-            // Limpiar cualquier resaltado activo
-            document.getElementById('area-buscador').classList.remove('foco-activo');
-            document.getElementById('area-grid').classList.remove('foco-activo');
-            document.getElementById('btn-registrar').classList.remove('foco-activo');
-            document.getElementById('btn-registrar').style.opacity = "1";
+        if (paso === 0) {
+            document.getElementById('asistente-maya').className = "pos-guia-top";
+            document.getElementById('area-buscador').classList.add('foco-activo');
+            document.getElementById('texto-asistente').innerText = lang === 'es' ? "Busca si tu número está libre." : "Kaaxat a xook ti' le buscadora'.";
+        } else if (paso === 1) {
+            document.getElementById('asistente-maya').className = "pos-guia-top";
+            document.getElementById('area-grid').classList.add('foco-activo');
+            document.getElementById('texto-asistente').innerText = lang === 'es' ? "Toca tu número de la suerte aquí abajo." : "T'aka' a xook yanal lelo'.";
         }
+        paso++;
+    }
 
-        function iniciar(l) {
-            lang = l;
-            document.getElementById('selector-idioma').classList.add('hidden');
-            document.getElementById('btn-next').classList.remove('hidden');
-            proximoPaso();
+    function buscar() {
+        // Limpiar flash anterior
+        document.querySelectorAll('.encontrado-flash').forEach(el => el.classList.remove('encontrado-flash'));
+        
+        let valor = document.getElementById('buscador').value;
+        if (!valor || valor.length < 1) return;
+        
+        // Formatear a 3 dígitos (ej: 5 -> 005)
+        let numId = valor.toString().padStart(3, '0');
+        const el = document.getElementById(`num-${numId}`);
+        
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.classList.add('encontrado-flash');
+            // Si está en el paso de buscar, avanzar automáticamente
+            if(paso === 1) setTimeout(proximoPaso, 1000); 
         }
+    }
 
-        function proximoPaso() {
-            document.getElementById('area-buscador').classList.remove('foco-activo');
-            document.getElementById('area-grid').classList.remove('foco-activo');
+    function seleccionar(numero) {
+        if(elegido) document.getElementById(`num-${elegido}`)?.classList.remove('seleccionado');
+        elegido = numero;
+        document.getElementById(`num-${numero}`).classList.add('seleccionado');
+        
+        // Cambiar estado visual para el siguiente paso
+        document.getElementById('guia-overlay').style.display = "none";
+        document.getElementById('area-grid').classList.remove('foco-activo');
+        
+        // Posicionar asistente cerca del botón de registro
+        document.getElementById('asistente-maya').className = "fixed bottom-32 left-1/2 -translate-x-1/2 scale-75";
+        document.getElementById('btn-registrar').classList.add('foco-activo');
+        document.getElementById('btn-next').classList.add('hidden');
+        document.getElementById('texto-asistente').innerText = lang === 'es' ? "¡Excelente! Ahora presiona Registrar." : "¡Jach ma'alob! Beoraé t'aka' Registrar.";
+    }
+
+    function pedirNombre() {
+        if(!elegido) return alert("Primero selecciona un número.");
+        document.getElementById('guia-overlay').style.display = "block";
+        document.getElementById('asistente-maya').className = "pos-centro";
+        document.getElementById('texto-asistente').innerText = lang === 'es' ? "Escribe tu nombre para apartarlo." : "Ts'íibta a k'aaba' utia'al a p'atke'.";
+        document.getElementById('form-nombre').classList.remove('hidden');
+    }
+
+    async function confirmarTodo() {
+        const nombre = document.getElementById('nombre-input').value.trim();
+        if (nombre.length < 4) return alert("Por favor, ingresa tu nombre completo.");
+        
+        const btn = document.getElementById('btn-confirmar');
+        btn.innerText = "PROCESANDO...";
+        btn.disabled = true;
+
+        try {
+            // Enviamos los datos al Script de Google
+            await fetch(SCRIPT_URL, { 
+                method: "POST", 
+                mode: "no-cors", 
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ numero: elegido, nombre: nombre }) 
+            });
+
+            document.getElementById('texto-asistente').innerText = "¡Listo! Te envío a Messenger para validar.";
             
-            if (paso === 0) {
-                document.getElementById('asistente-maya').className = "pos-guia-top";
-                document.getElementById('area-buscador').classList.add('foco-activo');
-            } else if (paso === 1) {
-                document.getElementById('asistente-maya').className = "pos-guia-top";
-                document.getElementById('area-grid').classList.add('foco-activo');
-            }
-            document.getElementById('texto-asistente').innerText = paso === 0 ? "Busca si tu número está libre." : "Toca tu número de la suerte aquí abajo.";
-            paso++;
+            setTimeout(() => {
+                // Redirigir a Messenger con el número elegido
+                window.location.href = `https://m.me/168173419701763?text=Hola! Ya aparté mi número ${elegido} a nombre de ${nombre}. Aquí mis capturas:`;
+            }, 2500);
+        } catch (e) {
+            alert("Hubo un error. Intenta de nuevo.");
+            btn.innerText = "Confirmar Registro";
+            btn.disabled = false;
         }
+    }
 
-        function buscar() {
-            let valor = document.getElementById('buscador').value;
-            if (!valor) return;
-            let numId = valor.toString().padStart(3, '0');
-            const el = document.getElementById(`num-${numId}`);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                el.classList.add('encontrado-flash');
-                if(paso === 1) proximoPaso();
-            }
-        }
-
-        function seleccionar(numero) {
-            if(elegido) document.getElementById(`num-${elegido}`)?.classList.remove('seleccionado');
-            elegido = numero;
-            document.getElementById(`num-${numero}`).classList.add('seleccionado');
-            
-            document.getElementById('guia-overlay').style.display = "none";
-            document.getElementById('area-grid').classList.remove('foco-activo');
-            document.getElementById('asistente-maya').className = "fixed bottom-32 left-1/2 -translate-x-1/2 scale-75";
-            document.getElementById('btn-registrar').classList.add('foco-activo');
-            document.getElementById('btn-next').classList.add('hidden');
-            document.getElementById('texto-asistente').innerText = "¡Excelente! Ahora presiona Registrar.";
-        }
-
-        function pedirNombre() {
-            document.getElementById('guia-overlay').style.display = "block";
-            document.getElementById('asistente-maya').className = "pos-centro";
-            document.getElementById('texto-asistente').innerText = "Escribe tu nombre completo.";
-            document.getElementById('form-nombre').classList.remove('hidden');
-        }
-
-        async function confirmarTodo() {
-            const nombre = document.getElementById('nombre-input').value.trim();
-            if (nombre.length < 5) return alert("Nombre completo.");
-            document.getElementById('btn-confirmar').innerText = "...";
-            try {
-                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ numeros: [elegido], nombre: nombre }) });
-                document.getElementById('texto-asistente').innerText = "¡Listo! Te envío a Messenger.";
-                setTimeout(() => {
-                    window.location.href = `https://m.me/168173419701763?text=Ya aparté mi número ${elegido}.`;
-                }, 3000);
-            } catch (e) { location.reload(); }
-        }
-
-        async function cargar() {
+    async function cargar() {
+        try {
             const res = await fetch(SCRIPT_URL);
             const data = await res.json();
             const grid = document.getElementById('grid-numeros');
             grid.innerHTML = "";
+            
             data.forEach(item => {
                 let d = document.createElement('div');
-                d.innerText = item.numero; d.id = `num-${item.numero}`;
+                d.innerText = item.numero; 
+                d.id = `num-${item.numero}`;
                 d.className = item.estado === "Vendido" ? 'numero ocupado' : 'numero';
-                if(item.estado !== "Vendido") d.onclick = () => seleccionar(item.numero);
+                
+                if(item.estado !== "Vendido") {
+                    d.onclick = () => seleccionar(item.numero);
+                }
                 grid.appendChild(d);
             });
+        } catch (e) {
+            console.error("Error cargando números:", e);
         }
-        cargar();
-    </script>
+    }
+    
+    cargar();
+</script>
 </body>
 </html>
+
