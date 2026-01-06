@@ -3,55 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rifas del Pueblo - Smart TV</title>
+    <title>Rifas del Pueblo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #ffffff; color: #1e293b; overflow-x: hidden; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #fff; color: #1e293b; margin: 0; padding: 0; }
         
-        /* CAPAS DE UI */
+        /* ASISTENTE Y CAPAS */
         #guia-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 8000; display: block; }
+        #asistente-maya { position: fixed; z-index: 9999; display: flex; flex-direction: column-reverse; align-items: center; width: 320px; transition: all 0.4s ease; pointer-events: none; }
+        .burbuja { background: white; padding: 25px; border-radius: 30px; border: 4px solid #2563eb; width: 100%; pointer-events: auto; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .btn-idioma { cursor: pointer !important; position: relative; z-index: 10000; }
         
-        #asistente-maya { 
-            position: fixed; z-index: 9000; display: flex; flex-direction: column-reverse; 
-            align-items: center; width: 340px; transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); 
-            pointer-events: none; 
-        }
-
-        .burbuja-dialogo { 
-            background: white; padding: 28px; border-radius: 35px; border: 4px solid #2563eb; 
-            width: 100%; pointer-events: auto; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4);
-        }
-
-        .btn-idioma { position: relative; z-index: 10001 !important; pointer-events: auto !important; }
-
-        /* POSICIONAMIENTO */
         .pos-centro { top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        .pos-guia-top { top: 30px; left: 50%; transform: translateX(-50%) scale(0.85); }
-        .pos-registro { bottom: 130px; left: 50%; transform: translateX(-50%) scale(0.9); }
-
-        /* FOCO DE LUZ */
-        #area-buscador { position: sticky; top: 0; z-index: 100; background: white; padding: 15px 0; border-bottom: 1px solid #f1f5f9; }
-        .foco-activo { 
-            position: relative !important; z-index: 8500 !important; 
-            box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.85), 0 0 50px rgba(59, 130, 246, 0.6) !important; 
-            pointer-events: auto !important; 
-        }
+        .pos-guia-top { top: 20px; left: 50%; transform: translateX(-50%) scale(0.85); }
+        .pos-registro { bottom: 120px; left: 50%; transform: translateX(-50%) scale(0.9); }
 
         /* GRID */
         .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; max-width: 1200px; margin: 0 auto; }
         @media (min-width: 768px) { .grid-container { grid-template-columns: repeat(10, 1fr); } }
         @media (min-width: 1024px) { .grid-container { grid-template-columns: repeat(20, 1fr); } }
         
-        .numero { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: white; font-weight: 800; font-size: 0.8rem; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s; }
-        .encontrado-flash { background: #FFD700 !important; color: black !important; transform: scale(1.6); z-index: 8600 !important; box-shadow: 0 0 30px #FFD700; border: 2px solid white !important; }
-        .seleccionado { background: #2563eb !important; color: white !important; border: none; transform: scale(1.1); }
-        .ocupado { background: #f1f5f9 !important; color: #cbd5e1 !important; cursor: not-allowed; opacity: 0.4; }
+        .numero { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: white; font-weight: 800; font-size: 0.8rem; border: 1px solid #e2e8f0; cursor: pointer; }
+        .encontrado-flash { background: #FFD700 !important; color: #000 !important; transform: scale(1.5); z-index: 8500; box-shadow: 0 0 20px #FFD700; }
+        .seleccionado { background: #2563eb !important; color: white !important; border: none; }
+        .ocupado { background: #f1f5f9 !important; color: #cbd5e1 !important; cursor: not-allowed; opacity: 0.5; }
         
-        /* ESTADO ERROR */
-        .base-error { border-color: #ef4444 !important; }
-        .text-error { color: #ef4444 !important; }
+        .foco-activo { position: relative !important; z-index: 8100 !important; box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.85), 0 0 40px #3b82f6 !important; }
     </style>
 </head>
 <body>
@@ -59,29 +38,167 @@
     <div id="guia-overlay"></div>
     
     <div id="asistente-maya" class="pos-centro">
-        <img src="asist.png" alt="Asistente" class="w-[130px] drop-shadow-2xl">
-        <div id="burbuja" class="burbuja-dialogo">
-            <div onclick="saltarGuia()" class="absolute top-4 right-4 text-slate-300 cursor-pointer p-1"><i class="fas fa-times text-xl"></i></div>
-
-            <p id="texto-asistente" class="text-base font-extrabold text-slate-800 leading-tight mb-6 text-center">
-                ¡Hola! Soy tu asistente.<br>¿En qué idioma te ayudo?
-            </p>
+        <img src="asist.png" alt="Asistente" class="w-[120px]">
+        <div class="burbuja">
+            <div onclick="saltarGuia()" class="absolute top-2 right-4 text-slate-300 cursor-pointer text-2xl">&times;</div>
+            <p id="texto-asistente" class="text-sm font-black text-center mb-4">¡Hola! Soy tu asistente.<br>¿En qué idioma te ayudo?</p>
             
-            <div id="selector-idioma" class="flex flex-col gap-3">
-                <button onclick="iniciar('es')" class="btn-idioma bg-blue-600 text-white py-5 rounded-2xl font-black text-sm uppercase w-full shadow-xl active:scale-95">Español</button>
-                <button onclick="iniciar('maya')" class="btn-idioma bg-slate-900 text-white py-5 rounded-2xl font-black text-sm uppercase w-full shadow-xl active:scale-95">Maya T'aan</button>
+            <div id="selector-idioma" class="flex flex-col gap-2">
+                <button onclick="iniciar('es')" class="btn-idioma bg-blue-600 text-white py-4 rounded-xl font-black uppercase text-xs shadow-lg">Español</button>
+                <button onclick="iniciar('maya')" class="btn-idioma bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-xs shadow-lg">Maya T'aan</button>
             </div>
 
-            <div id="form-nombre" class="hidden flex flex-col gap-3">
-                <input type="text" id="nombre-input" placeholder="Nombre Completo" class="w-full p-4 border-2 border-slate-200 rounded-xl font-bold text-center outline-none focus:border-blue-500">
-                <button id="btn-confirmar" onclick="confirmarTodo()" class="bg-green-600 text-white py-4 rounded-xl font-black uppercase text-xs">Confirmar Registro</button>
+            <div id="form-nombre" class="hidden flex flex-col gap-2">
+                <input type="text" id="nombre-input" placeholder="Tu Nombre" class="w-full p-3 border-2 border-slate-200 rounded-xl text-center font-bold outline-none">
+                <button onclick="confirmarTodo()" class="bg-green-600 text-white py-4 rounded-xl font-black uppercase text-xs">Confirmar</button>
             </div>
             
             <button id="btn-next" onclick="proximoPaso()" class="hidden w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase text-xs mt-2">Entendido →</button>
         </div>
     </div>
 
-    <nav class="bg-[#0f172a] py-4 px-6 flex justify-between items-center shadow-2xl">
+    <nav class="bg-[#0f172a] py-4 px-4 flex justify-between items-center">
         <div class="flex items-center gap-2">
-            <img src="logo.png" alt="Logo" class="h-8">
-            <span class="text-white font-extrabold italic uppercase text-sm">Rifas <span class="text-blue-5
+            <img src="logo.png" class="h-6">
+            <span class="text-white font-black italic text-xs uppercase">Rifas del Pueblo</span>
+        </div>
+    </nav>
+
+    <header class="text-center py-6">
+        <img src="tv-hisense.png" class="w-40 mx-auto mb-2">
+        <h1 class="text-xl font-black uppercase italic">¡Smart TV 50´´ <span class="text-blue-600">Gratis!</span></h1>
+    </header>
+
+    <div id="area-buscador" class="sticky top-0 bg-white p-4 z-50 border-b">
+        <input type="text" inputmode="numeric" id="buscador" oninput="buscar()" placeholder="Busca tu número..." class="w-full p-4 border-2 rounded-2xl text-center font-bold text-xl">
+    </div>
+
+    <main class="p-4">
+        <div id="area-grid" class="bg-white p-4 rounded-3xl border shadow-inner">
+            <div class="grid-container" id="grid-numeros"></div>
+        </div>
+    </main>
+
+    <div class="h-24"></div>
+    <div class="fixed bottom-0 inset-x-0 p-4 bg-white border-t z-[7000] flex justify-center">
+        <button onclick="pedirNombre()" id="btn-registrar" class="w-full max-w-md bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-lg">Registrar número</button>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5DtknopaEk6CoentxuqUsc9XPJpM5KbIbngmqffLfzEwH5PvG-FqW8Vf_jFqdxqTs/exec";
+        const textos = {
+            es: { busca: "Busca tu número libre.", toca: "Toca tu número de la suerte.", listo: "¡Bien! Ahora toca Registrar.", nombre: "Escribe tu nombre completo.", final: "¡Listo! Vamos a Messenger.", error: "⚠️ Error de base de datos. Intenta más tarde.", reg: "Registrar número", ph: "Busca tu número..." },
+            maya: { busca: "Kaaxat a xook.", toca: "T'aka' a xook.", listo: "¡Ma'alob! Beoraé Registrar.", nombre: "Ts'íibta a k'aaba'.", final: "¡Beyo'! Bin Messenger.", error: "⚠️ Yan jump'éel talamil.", reg: "P'at in xook", ph: "Kaaxat xook waye'..." }
+        };
+        let lang = 'es', paso = 0, elegido = null;
+
+        function saltarGuia() {
+            document.getElementById('guia-overlay').style.display = "none";
+            document.getElementById('asistente-maya').style.display = "none";
+            document.querySelectorAll('.foco-activo').forEach(e => e.classList.remove('foco-activo'));
+        }
+
+        function iniciar(l) {
+            lang = l;
+            document.getElementById('selector-idioma').classList.add('hidden');
+            document.getElementById('btn-next').classList.remove('hidden');
+            document.getElementById('btn-registrar').innerText = textos[lang].reg;
+            document.getElementById('buscador').placeholder = textos[lang].ph;
+            proximoPaso();
+        }
+
+        function proximoPaso() {
+            document.querySelectorAll('.foco-activo').forEach(e => e.classList.remove('foco-activo'));
+            const maya = document.getElementById('asistente-maya');
+            const txt = document.getElementById('texto-asistente');
+            if (paso === 0) {
+                maya.className = "pos-guia-top";
+                document.getElementById('area-buscador').classList.add('foco-activo');
+                txt.innerText = textos[lang].busca;
+                paso++;
+            } else if (paso === 1) {
+                document.getElementById('area-grid').classList.add('foco-activo');
+                txt.innerText = textos[lang].toca;
+                paso++;
+            } else { saltarGuia(); }
+        }
+
+        function crearGrid() {
+            const grid = document.getElementById('grid-numeros');
+            grid.innerHTML = "";
+            for (let i = 0; i < 1000; i++) {
+                let n = i.toString().padStart(3, '0');
+                let d = document.createElement('div');
+                d.innerText = n; d.id = `num-${n}`; d.className = 'numero';
+                d.onclick = () => seleccionar(n);
+                grid.appendChild(d);
+            }
+        }
+
+        async function cargarOcupados() {
+            try {
+                const res = await fetch(SCRIPT_URL);
+                const data = await res.json();
+                data.forEach(item => {
+                    const el = document.getElementById(`num-${item.numero}`);
+                    if (el && item.estado === "Vendido") {
+                        el.className = 'numero ocupado';
+                        el.onclick = null;
+                    }
+                });
+            } catch(e) {
+                // Si falla Google, el asistente avisa pero la página sigue viva
+                document.getElementById('texto-asistente').innerText = textos[lang].error;
+            }
+        }
+
+        function buscar() {
+            let val = document.getElementById('buscador').value;
+            if (!val) return;
+            document.querySelectorAll('.encontrado-flash').forEach(e => e.classList.remove('encontrado-flash'));
+            let id = val.toString().padStart(3, '0').slice(-3);
+            const el = document.getElementById(`num-${id}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.classList.add('encontrado-flash');
+            }
+        }
+
+        function seleccionar(n) {
+            if (elegido) document.getElementById(`num-${elegido}`)?.classList.remove('seleccionado');
+            elegido = n;
+            document.getElementById(`num-${n}`).classList.add('seleccionado');
+            document.getElementById('guia-overlay').style.display = "none";
+            document.getElementById('asistente-maya').className = "pos-registro";
+            document.getElementById('texto-asistente').innerText = textos[lang].listo;
+            document.getElementById('btn-next').classList.add('hidden');
+        }
+
+        function pedirNombre() {
+            if (!elegido) return;
+            document.getElementById('guia-overlay').style.display = "block";
+            document.getElementById('asistente-maya').style.display = "flex";
+            document.getElementById('asistente-maya').className = "pos-centro";
+            document.getElementById('texto-asistente').innerText = textos[lang].nombre;
+            document.getElementById('form-nombre').classList.remove('hidden');
+        }
+
+        async function confirmarTodo() {
+            const nom = document.getElementById('nombre-input').value.trim();
+            if (nom.length < 3) return;
+            const params = new URLSearchParams();
+            params.append('numero', elegido);
+            params.append('nombre', nom);
+            try {
+                fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: params });
+                document.getElementById('texto-asistente').innerText = textos[lang].final;
+                setTimeout(() => { window.location.href = `https://m.me/168173419701763?text=Aparté el ${elegido} - ${nom}`; }, 1500);
+            } catch(e) { window.location.reload(); }
+        }
+
+        // INICIO CRÍTICO
+        crearGrid();
+        cargarOcupados();
+    </script>
+</body>
+</html>
