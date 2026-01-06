@@ -169,21 +169,23 @@
     }
 
     function proximoPaso() {
-        document.getElementById('area-buscador').classList.remove('foco-activo');
-        document.getElementById('area-grid').classList.remove('foco-activo');
-        
-        if (paso === 0) {
-            document.getElementById('asistente-maya').className = "pos-guia-top";
-            document.getElementById('area-buscador').classList.add('foco-activo');
-            document.getElementById('texto-asistente').innerText = lang === 'es' ? "Busca si tu número está libre." : "Kaaxat a xook ti' le buscadora'.";
-        } else if (paso === 1) {
-            document.getElementById('asistente-maya').className = "pos-guia-top";
-            document.getElementById('area-grid').classList.add('foco-activo');
-            document.getElementById('texto-asistente').innerText = lang === 'es' ? "Toca tu número de la suerte aquí abajo." : "T'aka' a xook yanal lelo'.";
+            document.getElementById('area-buscador').classList.remove('foco-activo');
+            document.getElementById('area-grid').classList.remove('foco-activo');
+            
+            if (paso === 0) {
+                document.getElementById('asistente-maya').className = "pos-guia-top";
+                document.getElementById('area-buscador').classList.add('foco-activo');
+                document.getElementById('texto-asistente').innerText = "Busca si tu número está libre.";
+                paso++;
+            } else if (paso === 1) {
+                document.getElementById('asistente-maya').className = "pos-guia-top";
+                document.getElementById('area-grid').classList.add('foco-activo');
+                document.getElementById('texto-asistente').innerText = "Toca tu número de la suerte aquí abajo.";
+                paso++;
+            } else {
+                saltarGuia();
+            }
         }
-        paso++;
-    }
-
     function buscar() {
         // Limpiar flash anterior
         document.querySelectorAll('.encontrado-flash').forEach(el => el.classList.remove('encontrado-flash'));
@@ -284,4 +286,5 @@
 </script>
 </body>
 </html>
+
 
