@@ -134,4 +134,106 @@
             
             if (paso === 0) {
                 maya.className = "pos-guia-top";
-                document.
+                document.getElementById('area-buscador').classList.add('foco-activo');
+                txt.innerText = textos[lang].busca;
+                paso++;
+            } else if (paso === 1) {
+                document.getElementById('area-grid').classList.add('foco-activo');
+                txt.innerText = textos[lang].toca;
+                paso++;
+            } else { saltarGuia(); }
+        }
+
+        function crearGrid() {
+            const grid = document.getElementById('grid-numeros');
+            grid.innerHTML = "";
+            for (let i = 0; i < 1000; i++) {
+                let n = i.toString().padStart(3, '0');
+                let d = document.createElement('div');
+                d.innerText = n; d.id = `num-${n}`; d.className = 'numero';
+                d.onclick = () => seleccionar(n);
+                grid.appendChild(d);
+            }
+        }
+
+        async function sincronizarGoogle() {
+            try {
+                const res = await fetch(SCRIPT_URL);
+                const data = await res.json();
+                data.forEach(item => {
+                    const el = document.getElementById(`num-${item.numero}`);
+                    if (el && item.estado === "Vendido") {
+                        el.className = 'numero ocupado';
+                        el.onclick = null;
+                    }
+                });
+            } catch(e) { console.warn("Sync Offline"); }
+        }
+
+        function gestionarBusqueda() {
+            let val = document.getElementById('buscador').value.replace(/\D/g, ''); 
+            document.getElementById('buscador').value = val; 
+
+            // Limpiar siempre enfoques pasados
+            document.querySelectorAll('.encontrado-flash').forEach(e => e.classList.remove('encontrado-flash'));
+            
+            if (val.length > 0) {
+                let idBuscado = val.padStart(3, '0');
+                const el = document.getElementById(`num-${idBuscado}`);
+                
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.classList.add('encontrado-flash');
+                    
+                    if (val.length === 3 && paso === 1) {
+                        setTimeout(proximoPaso, 800);
+                    }
+                }
+            }
+        }
+
+        function seleccionar(n) {
+            if (elegido) document.getElementById(`num-${elegido}`)?.classList.remove('seleccionado');
+            document.querySelectorAll('.encontrado-flash').forEach(e => e.classList.remove('encontrado-flash'));
+            
+            elegido = n;
+            document.getElementById(`num-${n}`).classList.add('seleccionado');
+            document.getElementById('guia-overlay').style.display = "none";
+            document.getElementById('asistente-maya').className = "pos-registro";
+            document.getElementById('texto-asistente').innerText = textos[lang].listo;
+            document.getElementById('btn-next').classList.add('hidden');
+        }
+
+        function pedirNombre() {
+            if (!elegido) return;
+            document.getElementById('guia-overlay').style.display = "block";
+            document.getElementById('asistente-maya').style.display = "flex";
+            document.getElementById('asistente-maya').className = "pos-centro";
+            document.getElementById('texto-asistente').innerText = textos[lang].nombre;
+            document.getElementById('form-nombre').classList.remove('hidden');
+        }
+
+        async function confirmarTodo() {
+            const nom = document.getElementById('nombre-input').value.trim();
+            if (nom.length < 3) return;
+            const btn = document.getElementById('btn-confirmar');
+            btn.innerText = "..."; btn.disabled = true;
+
+            const params = new URLSearchParams();
+            params.append('numero', elegido);
+            params.append('nombre', nom);
+
+            try {
+                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: params.toString() });
+                document.getElementById('texto-asistente').innerText = textos[lang].final;
+                setTimeout(() => { 
+                    window.location.href = `https://m.me/168173419701763?text=Aparté el ${elegido} - ${nom}`; 
+                }, 1500);
+            } catch(e) { location.reload(); }
+        }
+
+        crearGrid();
+        sincronizarGoogle();
+    </script>
+</body>
+</html>
