@@ -3,237 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rifas del Pueblo - Smart TV</title>
+    <title>Sorteos | Rifas del Pueblo</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #1e293b; }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap');
         
-        /* GUIAS Y ASISTENTE */
-        #guia-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: 8000; display: block; }
-        #asistente-maya { position: fixed; z-index: 9999; display: flex; flex-direction: column-reverse; align-items: center; width: 320px; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; }
-        .burbuja { background: white; padding: 25px; border-radius: 30px; border: 4px solid #2563eb; width: 100%; pointer-events: auto; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-        
-        /* POSICIONES */
-        .pos-centro { top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        .pos-guia-top { top: 20px; left: 50%; transform: translateX(-50%) scale(0.85); }
-        .pos-registro { bottom: 120px; left: 50%; transform: translateX(-50%) scale(0.9); }
+        :root {
+            --color-primario: #002d72; /* Azul corporativo */
+            --color-secundario: #00a1e1; /* Celeste vibrante */
+            --color-acento: #ff6b00; /* Naranja para llamadas a la acción */
+        }
 
-        .foco-activo { position: relative !important; z-index: 8500 !important; box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.85), 0 0 40px #3b82f6 !important; pointer-events: auto !important; }
-
-        /* PRESENCIA DEL PREMIO */
-        .premio-glow { filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5)); animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        body { background-color: #fcfcfc; font-family: 'Outfit', sans-serif; color: #0f172a; }
         
-        .badge-gratis { background: linear-gradient(45deg, #ef4444, #f59e0b); color: white; padding: 4px 12px; border-radius: 99px; font-weight: 900; font-size: 0.75rem; letter-spacing: 1px; display: inline-block; margin-bottom: 8px; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
-
-        /* GRID */
-        .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; max-width: 1200px; margin: 0 auto; }
-        @media (min-width: 768px) { .grid-container { grid-template-columns: repeat(10, 1fr); } }
-        @media (min-width: 1024px) { .grid-container { grid-template-columns: repeat(20, 1fr); } }
+        .grid-rifa { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; padding: 15px; }
         
-        .numero { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: white; font-weight: 800; font-size: 0.8rem; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s; }
-        .encontrado-flash { background: #FFD700 !important; color: #000 !important; transform: scale(1.4); z-index: 8600; box-shadow: 0 0 30px #FFD700; border: 2px solid white !important; }
-        .seleccionado { background: #2563eb !important; color: white !important; border: none; transform: scale(1.1); box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
-        .ocupado { background: #f1f5f9 !important; color: #cbd5e1 !important; cursor: not-allowed; opacity: 0.5; }
+        .numero { background: white; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 16px 0; text-align: center; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .numero:hover { border-color: var(--color-secundario); background: #f0f9ff; transform: scale(1.05); }
+        
+        .ocupado { background: #e2e8f0 !important; color: #94a3b8; cursor: not-allowed; border: none; opacity: 0.6; }
+        
+        .seleccionado { 
+            background: var(--color-primario) !important; 
+            color: white !important; 
+            border-color: var(--color-primario);
+            box-shadow: 0 8px 15px rgba(0, 45, 114, 0.3);
+        }
+        
+        /* Asistente */
+        #asistente-contenedor { position: fixed; z-index: 100; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .pos-inicio { bottom: 50%; left: 50%; transform: translate(-50%, 50%); }
+        .pos-busqueda { bottom: 30px; left: 30px; transform: scale(0.8); }
+        .pos-centro { bottom: 50%; left: 50%; transform: translate(-50%, 50%) scale(1.1); }
+        
+        .burbuja { 
+            background: white; padding: 25px; border-radius: 30px; 
+            border: 3px solid var(--color-secundario);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1); 
+            min-width: 280px; 
+        }
+        .maya-img { width: 130px; margin: -15px auto 0; display: block; }
+        
+        .hidden { display: none !important; }
+        
+        .hero-card {
+            background: linear-gradient(135deg, var(--color-primario) 0%, #001535 100%);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+        }
     </style>
 </head>
-<body>
+<body class="pb-32">
 
-    <div id="guia-overlay"></div>
-    
-    <div id="asistente-maya" class="pos-centro">
-        <img src="asist.png" alt="Asistente" class="w-[120px] drop-shadow-xl">
-        <div class="burbuja">
-            <div onclick="saltarGuia()" class="absolute top-2 right-4 text-slate-300 cursor-pointer text-2xl">&times;</div>
-            <p id="texto-asistente" class="text-sm font-black text-center mb-4">¡Hola! Soy tu asistente.<br>¿En qué idioma te ayudo?</p>
-            
-            <div id="selector-idioma" class="flex flex-col gap-2">
-                <button onclick="iniciar('es')" class="bg-blue-600 text-white py-4 rounded-xl font-black uppercase text-xs shadow-lg">Español</button>
-                <button onclick="iniciar('maya')" class="bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-xs shadow-lg">Maya T'aan</button>
-            </div>
-
-            <div id="form-nombre" class="hidden flex flex-col gap-2">
-                <input type="text" id="nombre-input" placeholder="Tu nombre" class="w-full p-3 border-2 border-slate-200 rounded-xl text-center font-bold outline-none">
-                <button onclick="confirmarTodo()" class="bg-green-600 text-white py-4 rounded-xl font-black uppercase text-xs">Confirmar Registro</button>
-            </div>
-            
-            <button id="btn-next" onclick="proximoPaso()" class="hidden w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase text-xs mt-2">Entendido →</button>
-        </div>
-    </div>
-
-    <nav class="bg-[#0f172a] py-4 px-6 flex justify-between items-center shadow-lg">
-        <div class="flex items-center gap-2">
-            <img src="logo.png" class="h-8">
-            <span class="text-white font-black italic uppercase text-xs tracking-tighter">Rifas del Pueblo</span>
-        </div>
+    <nav class="flex justify-center py-6 bg-white shadow-sm mb-6">
+        <img src="logo.png" alt="Logo" class="h-14">
     </nav>
 
-    <header class="text-center py-10 px-4 bg-white border-b border-slate-100">
-        <div class="max-w-4xl mx-auto">
-            <div class="badge-gratis uppercase">Gran Sorteo</div>
-            <h1 class="text-3xl font-black uppercase italic leading-tight mb-6">
-                ¡Llévate una <span class="text-blue-600">Smart TV 50´´</span><br>totalmente GRATIS!
-            </h1>
-            <div class="relative inline-block">
-                <img src="tv-hisense.png" class="w-64 mx-auto premio-glow relative z-10" alt="Premio Smart TV">
-                <div class="absolute inset-0 bg-blue-400 blur-[60px] opacity-20 rounded-full"></div>
+    <main class="max-w-3xl mx-auto px-4">
+        <div class="hero-card p-8 text-white mb-10 shadow-2xl relative overflow-hidden">
+            <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
+                <div class="flex-1 text-center md:text-left">
+                    <span class="bg-sky-400/20 text-sky-300 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Sorteo Especial</span>
+                    <h1 class="text-4xl font-black mt-2 leading-none">TV HISENSE <br><span class="text-sky-400">4K SMART</span></h1>
+                    <p class="mt-4 text-sky-100/80 font-light">Participa por una experiencia de cine en casa.</p>
+                </div>
+                <div class="flex-1">
+                    <img src="tv-hisense.png" alt="TV Hisense" class="w-full h-auto drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)] transform hover:scale-105 transition-transform duration-500">
+                </div>
             </div>
-            <p class="text-slate-500 font-bold text-sm mt-4 uppercase tracking-widest">Escoge tu número de la suerte aquí abajo</p>
         </div>
-    </header>
 
-    <div id="area-buscador" class="sticky top-0 bg-white/80 backdrop-blur-md p-4 z-50 border-b">
-        <div class="max-w-md mx-auto">
-            <input type="text" inputmode="numeric" id="buscador" oninput="gestionarBusqueda()" maxlength="3" placeholder="Busca tu número..." class="w-full p-5 border-2 border-blue-100 rounded-2xl text-center font-black text-2xl shadow-sm outline-none focus:border-blue-500 transition-all bg-white">
+        <div class="mb-8">
+            <input type="text" id="buscador" oninput="gestionarBusqueda()" placeholder="🔍 Busca tu número de la suerte..." 
+                class="w-full bg-white border-2 border-slate-100 p-5 rounded-2xl text-center font-bold text-xl shadow-sm focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none transition-all">
         </div>
-    </div>
 
-    <main class="p-4 bg-[#f8fafc]">
-        <div id="area-grid" class="bg-white p-4 rounded-[30px] border border-slate-200 shadow-xl">
-            <div class="grid-container" id="grid-numeros"></div>
-        </div>
+        <div id="grid-numeros" class="grid-rifa"></div>
     </main>
 
-    <div class="h-32"></div>
+    <div id="asistente-contenedor" class="pos-inicio">
+        <div class="burbuja">
+            <p id="texto-asistente" class="text-lg font-bold text-center mb-6">¡Hola! Soy Maya.<br><span class="font-normal text-slate-500 text-sm">¿En qué idioma te ayudo?</span></p>
+            <div id="ui-asistente">
+                <div id="selector-idioma" class="flex flex-col gap-3">
+                    <button onclick="iniciar('es')" class="bg-[#002d72] text-white py-4 rounded-2xl font-bold hover:bg-blue-800 transition-all shadow-lg">Español</button>
+                    <button onclick="iniciar('maya')" class="bg-slate-100 text-slate-700 py-4 rounded-2xl font-bold hover:bg-slate-200 transition-all">Maya T'aan</button>
+                </div>
+                <div id="form-nombre" class="hidden space-y-3">
+                    <input type="text" id="nombre-input" placeholder="Escribe tu nombre" class="w-full p-4 border-2 border-slate-100 rounded-2xl text-center font-bold focus:border-sky-500 outline-none">
+                    <button onclick="confirmarTodo()" class="w-full bg-[#ff6b00] text-white py-4 rounded-2xl font-black uppercase tracking-wider shadow-lg hover:bg-orange-600 transition-all">Finalizar Registro</button>
+                </div>
+            </div>
+        </div>
+        <img src="asist.png" class="maya-img" alt="Maya">
+    </div>
 
-    <div id="footer-registro" class="fixed bottom-0 inset-x-0 p-5 bg-white/95 border-t backdrop-blur-sm z-[7000] flex justify-center">
-        <button onclick="pedirNombre()" id="btn-registrar" class="w-full max-w-md bg-blue-600 text-white py-5 rounded-2xl font-black uppercase text-xl shadow-2xl active:scale-95 transition-all">
-            Registrar mi número
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs px-4">
+        <button id="btn-registrar" disabled onclick="pedirNombre()" 
+            class="w-full bg-[#002d72] text-white py-5 rounded-3xl font-black uppercase text-sm tracking-widest shadow-[0_15px_30px_rgba(0,45,114,0.4)] disabled:bg-slate-300 disabled:shadow-none transition-all active:scale-95">
+            Reservar número
         </button>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5DtknopaEk6CoentxuqUsc9XPJpM5KbIbngmqffLfzEwH5PvG-FqW8Vf_jFqdxqTs/exec";
         const textos = {
-            es: { busca: "Busca tu número. Se enfocará al instante.", toca: "O elige uno tocando los cuadros de abajo.", listo: "¡Excelente! Ahora toca Registrar.", nombre: "Escribe tu nombre para apartarlo.", final: "¡Listo! Te envío a Messenger.", reg: "Registrar mi número", ph: "Escribe un número..." },
-            maya: { busca: "Kaaxat a xook. Séeb u chíikpahal.", toca: "T'aka' a xook yanal lelo'.", listo: "¡Jach ma'alob! Beoraé Registrar.", nombre: "Ts'íibta a k'aaba' utia'al a p'atke'.", final: "¡Beyo'! Bin in túuxtitech Messenger.", reg: "P'at in xook", ph: "Kaaxat xook waye'..." }
+            es: { busca: "Busca tu número abajo", registrar: "¡Toca Reservar!", nombre: "Escribe tu nombre", final: "¡Enviado! Vamos a Messenger" },
+            maya: { busca: "Kaaxat a xook", registrar: "T'aka' Reservar", nombre: "Ts'íibta a k'aaba'", final: "¡Beyo'! Bin Messenger" }
         };
-        let lang = 'es', paso = 0, elegido = null;
 
-        function saltarGuia() {
-            document.getElementById('guia-overlay').style.display = "none";
-            document.getElementById('asistente-maya').style.display = "none";
-            document.querySelectorAll('.foco-activo').forEach(e => e.classList.remove('foco-activo'));
-        }
+        let lang = 'es', elegido = null;
 
         function iniciar(l) {
             lang = l;
             document.getElementById('selector-idioma').classList.add('hidden');
-            document.getElementById('btn-next').classList.remove('hidden');
-            document.getElementById('btn-registrar').innerText = textos[lang].reg;
-            document.getElementById('buscador').placeholder = textos[lang].ph;
-            proximoPaso();
+            document.getElementById('asistente-contenedor').className = "pos-busqueda";
+            document.getElementById('texto-asistente').innerText = textos[lang].busca;
+            cargarOcupados();
         }
 
-        function proximoPaso() {
-            document.querySelectorAll('.foco-activo').forEach(e => e.classList.remove('foco-activo'));
-            const maya = document.getElementById('asistente-maya');
-            const txt = document.getElementById('texto-asistente');
-            
-            if (paso === 0) {
-                maya.className = "pos-guia-top";
-                document.getElementById('area-buscador').classList.add('foco-activo');
-                txt.innerText = textos[lang].busca;
-                paso++;
-            } else if (paso === 1) {
-                document.getElementById('area-grid').classList.add('foco-activo');
-                txt.innerText = textos[lang].toca;
-                paso++;
-            } else { saltarGuia(); }
-        }
-
-        function crearGrid() {
+        function generarGrid() {
             const grid = document.getElementById('grid-numeros');
-            grid.innerHTML = "";
             for (let i = 0; i < 1000; i++) {
                 let n = i.toString().padStart(3, '0');
                 let d = document.createElement('div');
-                d.innerText = n; d.id = `num-${n}`; d.className = 'numero';
-                d.onclick = () => seleccionar(n);
+                d.id = 'num-' + n; d.className = 'numero'; d.innerText = n;
+                d.onclick = () => {
+                    if(d.classList.contains('ocupado')) return;
+                    if(elegido) document.getElementById('num-'+elegido).classList.remove('seleccionado');
+                    elegido = n;
+                    d.classList.add('seleccionado');
+                    document.getElementById('btn-registrar').disabled = false;
+                    document.getElementById('texto-asistente').innerText = textos[lang].registrar;
+                };
                 grid.appendChild(d);
             }
         }
 
-        async function sincronizarGoogle() {
-            try {
-                const res = await fetch(SCRIPT_URL);
-                const data = await res.json();
-                data.forEach(item => {
-                    const el = document.getElementById(`num-${item.numero}`);
-                    if (el && item.estado === "Vendido") {
-                        el.className = 'numero ocupado';
-                        el.onclick = null;
-                    }
-                });
-            } catch(e) { console.warn("Sync Offline"); }
-        }
-
         function gestionarBusqueda() {
-            let val = document.getElementById('buscador').value.replace(/\D/g, ''); 
-            document.getElementById('buscador').value = val; 
-
-            // Limpiar siempre enfoques pasados
-            document.querySelectorAll('.encontrado-flash').forEach(e => e.classList.remove('encontrado-flash'));
-            
-            if (val.length > 0) {
-                let idBuscado = val.padStart(3, '0');
-                const el = document.getElementById(`num-${idBuscado}`);
-                
-                if (el) {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    el.classList.add('encontrado-flash');
-                    
-                    if (val.length === 3 && paso === 1) {
-                        setTimeout(proximoPaso, 800);
-                    }
-                }
+            let val = document.getElementById('buscador').value.replace(/\D/g, '');
+            if (val.length >= 1) {
+                let id = val.padStart(3, '0');
+                const el = document.getElementById('num-' + id);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
 
-        function seleccionar(n) {
-            if (elegido) document.getElementById(`num-${elegido}`)?.classList.remove('seleccionado');
-            document.querySelectorAll('.encontrado-flash').forEach(e => e.classList.remove('encontrado-flash'));
-            
-            elegido = n;
-            document.getElementById(`num-${n}`).classList.add('seleccionado');
-            document.getElementById('guia-overlay').style.display = "none";
-            document.getElementById('asistente-maya').className = "pos-registro";
-            document.getElementById('texto-asistente').innerText = textos[lang].listo;
-            document.getElementById('btn-next').classList.add('hidden');
-        }
-
         function pedirNombre() {
-            if (!elegido) return;
-            document.getElementById('guia-overlay').style.display = "block";
-            document.getElementById('asistente-maya').style.display = "flex";
-            document.getElementById('asistente-maya').className = "pos-centro";
+            document.getElementById('asistente-contenedor').className = "pos-centro";
             document.getElementById('texto-asistente').innerText = textos[lang].nombre;
             document.getElementById('form-nombre').classList.remove('hidden');
         }
 
         async function confirmarTodo() {
-            const nom = document.getElementById('nombre-input').value.trim();
-            if (nom.length < 3) return;
-            const btn = document.getElementById('btn-confirmar');
-            btn.innerText = "..."; btn.disabled = true;
-
-            const params = new URLSearchParams();
-            params.append('numero', elegido);
-            params.append('nombre', nom);
-
-            try {
-                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: params.toString() });
-                document.getElementById('texto-asistente').innerText = textos[lang].final;
-                setTimeout(() => { 
-                    window.location.href = `https://m.me/168173419701763?text=Aparté el ${elegido} - ${nom}`; 
-                }, 1500);
-            } catch(e) { location.reload(); }
+            const nom = document.getElementById('nombre-input').value;
+            if(!nom || !elegido) return;
+            const params = new URLSearchParams({ numero: elegido, nombre: nom });
+            await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: params });
+            window.location.href = "https://m.me/168173419701763?text=Aparté el número: " + elegido + " para la TV Hisense";
         }
 
-        crearGrid();
-        sincronizarGoogle();
+        async function cargarOcupados() {
+            try {
+                const res = await fetch(SCRIPT_URL);
+                const data = await res.json();
+                data.forEach(item => {
+                    const el = document.getElementById('num-' + item.numero);
+                    if (el && item.estado === "Vendido") el.classList.add('ocupado');
+                });
+            } catch(e) {}
+        }
+
+        generarGrid();
     </script>
 </body>
 </html>
