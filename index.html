@@ -145,7 +145,7 @@
                 </div>
                 <div id="form-nombre" class="hidden space-y-3">
                     <input type="text" id="nombre-input" placeholder="Nombre completo" class="w-full p-4 border-2 border-slate-100 rounded-2xl text-center font-bold outline-none">
-                    <button onclick="confirmarTodo()" class="w-full bg-[#ff6b00] text-white py-4 rounded-2xl font-black uppercase shadow-lg">Confirmar Reserva</button>
+                    <button onclick="confirmarTodo()" class="w-full bg-[#ff6b00] text-white py-4 rounded-2xl font-black uppercase shadow-lg">Confirmar número</button>
                 </div>
             </div>
         </div>
@@ -155,7 +155,7 @@
     <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs px-4">
         <button id="btn-registrar" disabled onclick="pedirNombre()" 
             class="w-full bg-[#002d72] text-white py-5 rounded-3xl font-black uppercase text-sm tracking-widest shadow-xl active:scale-95 disabled:opacity-50">
-            Reservar número
+            Confirmar número
         </button>
     </div>
 
@@ -170,7 +170,7 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdALyt2BfMCvtkkByTV2z2qjxcuTe4wnI3_s_STZknO_zLCPQ7edRKCtW5AjL6M-kG/exec";
         const textos = {
-            es: { busca: "Busca tu número abajo", registrar: "¡Toca Reservar!", nombre: "Escribe tu nombre completo" },
+            es: { busca: "Busca tu número aquí abajo", registrar: "¡Toca Confirmar!", nombre: "Escribe tu nombre completo" },
             maya: { busca: "Kaaxat a xook", registrar: "T'aka' Reservar", nombre: "Ts'íibta a k'aaba'" }
         };
 
@@ -245,7 +245,7 @@
             const urlFinal = SCRIPT_URL + "?numero=" + elegido + "&nombre=" + encodeURIComponent(nom) + "&estado=Vendido";
             fetch(urlFinal, { method: 'POST', mode: 'no-cors' });
 
-            window.location.href = "https://m.me/168173419701763?text=Aparté el número: " + elegido + " para la TV Hisense. Mi nombre es: " + nom;
+            window.location.href = "https://m.me/168173419701763?text=¡Hola! Aparté el número: " + elegido + " para la TV Hisense. Mi nombre es: " + nom "Aquí te envío mis caturas de los pasos que seguí...";
         }
 
         async function cargarOcupados() {
@@ -265,3 +265,4 @@
     </script>
 </body>
 </html>
+
