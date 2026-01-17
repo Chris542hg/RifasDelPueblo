@@ -116,7 +116,7 @@
             <div class="flex flex-col md:flex-row items-center gap-6 relative z-10">
                 <div class="flex-1 text-center md:text-left">
                     <span class="bg-red-600 text-white px-4 py-1 rounded-full text-xs font-bold uppercase animate-pulse">Sorteo Especial GRATIS</span>
-                    <h1 class="text-4xl font-black mt-2 leading-none uppercase">SMART TV HISENSE <br><span class="text-sky-400 text-3xl">FULL HD 50¨</span></h1>
+                    <h1 class="text-4xl font-black mt-2 leading-none uppercase">SMART TV HISENSE <br><span class="text-sky-400 text-3xl">FULL HD 50"</span></h1>
                     <p class="mt-4 text-sky-100/80 font-light italic">¡Participa ahora sin costo!</p>
                 </div>
                 <div class="flex-1">
@@ -137,7 +137,7 @@
 
     <div id="asistente-contenedor" class="pos-inicio">
         <div class="burbuja">
-            <p id="texto-asistente" class="text-lg font-bold text-center mb-6">¿En qué idioma te ayudo?</p>
+            <p id="texto-asistente" class="text-lg font-bold text-center mb-6">¡Hola! ¿En qué idioma te ayudo?</p>
             <div id="ui-asistente">
                 <div id="selector-idioma" class="flex flex-col gap-3">
                     <button onclick="iniciar('es')" class="bg-[#002d72] text-white py-4 rounded-2xl font-bold">Español</button>
@@ -245,7 +245,7 @@
             const urlFinal = SCRIPT_URL + "?numero=" + elegido + "&nombre=" + encodeURIComponent(nom) + "&estado=Vendido";
             fetch(urlFinal, { method: 'POST', mode: 'no-cors' });
 
-            window.location.href = "https://m.me/168173419701763?text= ¡Hola! Aparté el número:" + elegido + "para la TV Hisense. Mi nombre es: " + nom + "Aquí te envío mis caturas de los pasos que seguí..." ;
+            window.location.href = "https://m.me/168173419701763?text= ¡Hola! Aparté el número: " + elegido + " para la TV Hisense. Mi nombre es: " + nom + ". Aquí te envío mis caturas de los pasos que seguí..." ;
         }
 
         async function cargarOcupados() {
@@ -265,6 +265,7 @@
     </script>
 </body>
 </html>
+
 
 
 
