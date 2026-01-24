@@ -189,10 +189,42 @@
         }
 
         async function confirmarTodo() {
-            const nom = document.getElementById('nombre-input').value.trim(); if(!nom || !elegido) return;
-            fetch(SCRIPT_URL + "?numero=" + elegido + "&nombre=" + encodeURIComponent(nom) + "&estado=Vendido", { method: 'POST', mode: 'no-cors' });
-            prepararYMostrarBoleto(elegido, nom, false);
-        }
+    const nomInput = document.getElementById('nombre-input');
+    const nom = nomInput.value.trim(); 
+    
+    // Validación: Divide el texto por espacios y filtra elementos vacíos
+    // Requiere al menos 3 elementos (palabras)
+    const palabras = nom.split(/\s+/).filter(palabra => palabra.length > 0);
+    
+    if (palabras.length < 3) {
+        // Feedback visual si el nombre está incompleto
+        const msgError = (lang === 'es' ? "Escribe tu nombre y dos apellidos" : "Ts'íibta a k'aaba' yéetel ka'atúul apellidos");
+        document.getElementById('texto-asistente').innerText = msgError;
+        document.getElementById('texto-asistente').style.color = "red";
+        nomInput.style.borderColor = "red";
+        
+        setTimeout(() => { 
+            document.getElementById('texto-asistente').innerText = (lang === 'es' ? "Escribe tu nombre completo" : "Ts'íibta a k'aaba'");
+            document.getElementById('texto-asistente').style.color = "";
+            nomInput.style.borderColor = "";
+        }, 3000);
+        return;
+    }
+
+    if(!nom || !elegido) return;
+
+    // Si pasa la validación, procede con el registro
+    try {
+        fetch(SCRIPT_URL + "?numero=" + elegido + "&nombre=" + encodeURIComponent(nom) + "&estado=Vendido", { 
+            method: 'POST', 
+            mode: 'no-cors' 
+        });
+    } catch (e) {
+        console.error("Error al registrar:", e);
+    }
+    
+    prepararYMostrarBoleto(elegido, nom, false);
+}
 
         function cerrarExito() {
             document.getElementById('modal-exito').classList.add('hidden');
