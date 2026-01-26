@@ -6,32 +6,32 @@
     <title>Sorteos | Rifas del Pueblo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap');
         :root { --color-primario: #002d72; --color-secundario: #00a1e1; --color-acento: #ff6b00; }
         body { background-color: #f8fafc; font-family: 'Outfit', sans-serif; color: #0f172a; margin: 0; overflow-x: hidden; }
         
-        /* Banner adaptable */
         .banner-vertical { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: clamp(80px, 15vw, 110px); height: clamp(100px, 18vw, 130px); background: var(--color-primario); z-index: 10; border-radius: 0 0 20px 20px; box-shadow: 0 10px 25px rgba(0,45,114,0.3); display: flex; align-items: center; justify-content: center; padding: 10px; }
         #logo-header { width: 100%; height: auto; max-height: 80%; object-fit: contain; }
-
-        /* Tarjeta Hero Responsiva */
         .hero-card { background: linear-gradient(135deg, #002d72 0%, #001535 100%); border-radius: 24px; position: relative; overflow: hidden; }
-        @media (min-width: 768px) { .hero-card { border-radius: 40px; } }
-
-        /* Grid de Números Adaptable */
         .numero { background: white; border: 2px solid #e2e8f0; border-radius: 12px; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: clamp(0.8rem, 2vw, 1.1rem); }
-        .ocupado { background: #e2e8f0 !important; color: #94a3b8 !important; cursor: not-allowed; border: none !important; }
+        .ocupado { background: #e2e8f0 !important; color: #94a3b8 !important; cursor: not-allowed; border: none !important; opacity: 0.7; }
         .seleccionado { background: var(--color-primario) !important; color: white !important; transform: scale(1.05); box-shadow: 0 8px 15px rgba(0,45,114,0.2); border-color: var(--color-primario); }
-
-        /* Asistente */
         #asistente-contenedor { position: fixed; z-index: 100; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         .pos-inicio { bottom: 50%; left: 50%; transform: translate(-50%, 50%); width: 90%; max-width: 380px; }
         .pos-busqueda { bottom: 20px; left: 20px; transform: scale(0.75); width: 280px; transform-origin: bottom left; }
         .pos-centro { bottom: 50%; left: 50%; transform: translate(-50%, 50%) scale(1); width: 90%; max-width: 400px; }
-
-        /* Estética de Modales */
-        .modal-content { max-height: 90vh; overflow-y: auto; scrollbar-width: thin; }
+        
+        /* Estilos de Pestañas Admin */
+        .tab-btn { padding: 10px; font-size: 10px; font-weight: 900; text-transform: uppercase; border-bottom: 3px solid transparent; flex: 1; color: #64748b; }
+        .tab-btn.active { color: #002d72; border-bottom-color: #ff6b00; }
+        .admin-section { display: none; }
+        .admin-section.active { display: block; }
     </style>
 </head>
 <body class="pb-32">
@@ -39,7 +39,7 @@
 
     <header class="relative h-24 mb-8">
         <div class="banner-vertical"><img src="logo.png" alt="Logo" id="logo-header"></div>
-        <a href="https://www.facebook.com/168173419701763" target="_blank" class="fixed top-4 right-4 bg-[#1877F2] text-white px-4 py-2 rounded-full font-bold flex items-center gap-2 z-[60] shadow-lg text-xs md:text-sm transition-transform active:scale-95">
+        <a href="https://www.facebook.com/168173419701763" target="_blank" class="fixed top-4 right-4 bg-[#1877F2] text-white px-4 py-2 rounded-full font-bold flex items-center gap-2 z-[60] shadow-lg text-xs transition-transform active:scale-95">
             <span>Facebook</span>
         </a>
     </header>
@@ -58,11 +58,11 @@
         </div>
 
         <div class="mb-8 flex flex-col md:flex-row gap-3">
-            <button onclick="elegirAlAzar()" class="w-full md:w-auto bg-slate-800 text-white px-6 py-4 rounded-2xl font-bold uppercase shadow-lg hover:bg-slate-700 active:scale-95 transition-all text-sm">Azar 🎲</button>
+            <button onclick="elegirAlAzar()" class="w-full md:w-auto bg-slate-800 text-white px-6 py-4 rounded-2xl font-bold uppercase shadow-lg text-sm">Azar 🎲</button>
             <div class="relative flex-1">
-                <input type="text" id="buscador" onkeypress="if(event.key==='Enter') ejecutarBusqueda()" placeholder="🔍 Escribe tu número..." class="w-full bg-white border-2 border-slate-200 p-4 rounded-2xl text-center font-bold text-lg outline-none focus:border-sky-500 shadow-inner transition-colors">
+                <input type="text" id="buscador" onkeypress="if(event.key==='Enter') ejecutarBusqueda()" placeholder="🔍 Escribe tu número..." class="w-full bg-white border-2 border-slate-200 p-4 rounded-2xl text-center font-bold text-lg outline-none focus:border-sky-500 shadow-inner">
             </div>
-            <button onclick="ejecutarBusqueda()" class="w-full md:w-auto bg-[#ff6b00] text-white px-8 py-4 rounded-2xl font-bold uppercase shadow-lg hover:bg-orange-500 active:scale-95 transition-all text-sm">Buscar</button>
+            <button onclick="ejecutarBusqueda()" class="w-full md:w-auto bg-[#ff6b00] text-white px-8 py-4 rounded-2xl font-bold uppercase shadow-lg text-sm">Buscar</button>
         </div>
 
         <div id="grid-numeros" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2 md:gap-3 bg-white/50 p-3 rounded-3xl border border-slate-100 shadow-sm"></div>
@@ -70,50 +70,62 @@
 
     <div id="asistente-contenedor" class="pos-inicio">
         <div class="burbuja relative bg-white p-6 rounded-[30px] border-4 border-sky-400 shadow-2xl">
-            <p id="texto-asistente" class="text-sm md:text-base font-bold text-center mb-5 text-slate-700 uppercase tracking-tight">¡Bienvenido! ¿En qué idioma te ayudo?</p>
+            <p id="texto-asistente" class="text-sm font-bold text-center mb-5 text-slate-700 uppercase">¡Bienvenido! ¿En qué idioma te ayudo?</p>
             <div id="selector-idioma" class="flex flex-col gap-2">
-                <button onclick="iniciar('es')" class="bg-[#002d72] text-white py-3 md:py-4 rounded-2xl font-black shadow-md hover:bg-blue-900 transition-colors uppercase text-xs md:text-sm">Español</button>
-                <button onclick="iniciar('maya')" class="bg-slate-100 text-slate-700 py-3 md:py-4 rounded-2xl font-bold shadow-sm hover:bg-slate-200 transition-colors uppercase text-xs md:text-sm">Maya T'aan</button>
+                <button onclick="iniciar('es')" class="bg-[#002d72] text-white py-4 rounded-2xl font-black shadow-md uppercase text-xs">Español</button>
+                <button onclick="iniciar('maya')" class="bg-slate-100 text-slate-700 py-4 rounded-2xl font-bold shadow-sm uppercase text-xs">Maya T'aan</button>
             </div>
             <div id="form-nombre" class="hidden space-y-3">
-                <input type="text" id="nombre-input" placeholder="Nombre completo" class="w-full p-4 border-2 border-slate-200 rounded-2xl text-center font-bold outline-none focus:border-orange-500">
-                <button onclick="confirmarTodo()" class="w-full bg-[#ff6b00] text-white py-4 rounded-2xl font-black uppercase shadow-lg hover:bg-orange-600 transition-colors text-xs md:text-sm">Confirmar Reservación</button>
+                <input type="text" id="nombre-input" placeholder="Nombre completo" class="w-full p-4 border-2 rounded-2xl text-center font-bold outline-none focus:border-orange-500">
+                <button onclick="confirmarTodo()" class="w-full bg-[#ff6b00] text-white py-4 rounded-2xl font-black uppercase text-xs">Confirmar Reservación</button>
             </div>
         </div>
-        <div class="flex justify-center -mt-4">
-            <img src="asist.png" class="w-24 md:w-32 drop-shadow-xl">
-        </div>
+        <div class="flex justify-center -mt-4"><img src="asist.png" class="w-24 drop-shadow-xl"></div>
     </div>
 
-    <div id="modal-admin" class="hidden fixed inset-0 bg-slate-900/90 z-[9999] flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md relative shadow-2xl modal-content">
-            <button onclick="document.getElementById('modal-admin').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-red-500 text-2xl font-bold">✕</button>
-            <h2 class="text-xl font-black mb-6 text-[#002d72] uppercase text-center">Admin Panel</h2>
-            <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="text" id="admin-num" placeholder="Num" class="p-3 border-2 rounded-xl text-center font-bold outline-none focus:border-sky-500">
-                    <input type="text" id="admin-nom" placeholder="Nombre" class="p-3 border-2 rounded-xl text-center font-bold outline-none focus:border-sky-500">
+    <div id="modal-admin" class="hidden fixed inset-0 bg-slate-900/95 z-[9999] flex items-center justify-center p-2">
+        <div class="bg-white rounded-[40px] w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-slate-50 p-4 flex justify-between items-center border-b">
+                <h2 class="font-black text-[#002d72] uppercase text-sm italic">Panel Administrativo</h2>
+                <button onclick="document.getElementById('modal-admin').classList.add('hidden')" class="text-red-500 font-bold text-xl px-2">✕</button>
+            </div>
+
+            <div class="flex bg-white border-b">
+                <button onclick="switchTab('tab-gen')" id="btn-tab-gen" class="tab-btn active">Boleto</button>
+                <button onclick="switchTab('tab-list')" id="btn-tab-list" class="tab-btn">Lista</button>
+                <button onclick="switchTab('tab-sort')" id="btn-tab-sort" class="tab-btn">Sortear</button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-1">
+                <div id="tab-gen" class="admin-section active space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="admin-num" placeholder="000" class="p-4 border-2 rounded-2xl text-center font-bold outline-none">
+                        <input type="text" id="admin-nom" placeholder="Nombre" class="p-4 border-2 rounded-2xl text-center font-bold outline-none">
+                    </div>
+                    <button onclick="generarAdminTicket()" class="w-full bg-[#002d72] text-white py-4 rounded-2xl font-black uppercase text-xs">Generar Manual</button>
                 </div>
-                <button onclick="generarAdminTicket()" class="w-full bg-[#002d72] text-white py-3 rounded-xl font-black uppercase text-xs">Generar Manual</button>
-                <hr>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="recuperarTodosLosBoletos()" id="btn-recuperar" class="bg-slate-800 text-white py-3 rounded-xl font-bold text-[10px] uppercase">Sincronizar</button>
-                    <button onclick="descargarTodosLosBoletos()" id="btn-descargar-todos" class="bg-green-600 text-white py-3 rounded-xl font-bold text-[10px] uppercase hidden">Descargar Todo</button>
+
+                <div id="tab-list" class="admin-section space-y-4">
+                    <input type="text" id="filtro-lista" oninput="filtrarListaAdmin()" placeholder="🔍 Buscar por nombre..." class="w-full p-3 bg-slate-100 rounded-xl text-sm border-none outline-none">
+                    <div id="lista-participantes" class="space-y-2">
+                        </div>
                 </div>
-                <input type="text" id="input-busqueda-admin" oninput="filtrarListaRecuperacion()" placeholder="Buscar cliente..." class="w-full p-3 border-2 rounded-xl text-sm font-bold outline-none">
-                <div id="lista-recuperacion" class="max-h-48 overflow-y-auto space-y-2 hidden border-t pt-3"></div>
+
+                <div id="tab-sort" class="admin-section text-center space-y-6 py-8">
+                    <div id="display-sorteo" class="text-7xl font-black text-slate-300">???</div>
+                    <button onclick="iniciarSorteoAnimado()" id="btn-sortear" class="bg-[#ff6b00] text-white px-10 py-5 rounded-full font-black uppercase text-sm shadow-xl">¡Girar Ruleta!</button>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="modal-exito" class="hidden fixed inset-0 bg-black/95 z-[10000] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-[35px] p-5 md:p-8 w-full max-w-sm text-center shadow-2xl modal-content">
-            <h3 id="exito-titulo" class="text-xl md:text-2xl font-black text-slate-800 uppercase mb-2">¡Casi listo!</h3>
-            <p class="text-slate-500 mb-5 text-[10px] md:text-xs font-bold uppercase">Tu comprobante se generó con éxito</p>
-            <div id="preview-boleto" class="mb-6 rounded-2xl border-4 border-slate-100 shadow-inner overflow-hidden bg-slate-50"></div>
+        <div class="bg-white rounded-[35px] p-5 w-full max-w-sm text-center shadow-2xl">
+            <h3 id="exito-titulo" class="text-xl font-black text-slate-800 uppercase mb-2 italic">¡Felicidades!</h3>
+            <div id="preview-boleto" class="mb-6 rounded-2xl border-4 border-slate-100 overflow-hidden bg-slate-50"></div>
             <div class="space-y-3">
-                <button id="btn-accion-final" onclick="descargarYRedirigir()" class="w-full bg-[#ff6b00] text-white py-4 rounded-2xl font-black shadow-lg uppercase text-xs md:text-sm">Descargar</button>
-                <button id="btn-volver-atras" onclick="cerrarExito()" class="w-full bg-slate-100 text-slate-500 py-3 rounded-2xl font-bold uppercase text-[10px] md:text-xs">Volver</button>
+                <button id="btn-accion-final" onclick="descargarYRedirigir()" class="w-full bg-[#ff6b00] text-white py-4 rounded-2xl font-black uppercase text-xs">Descargar</button>
+                <button id="btn-volver-atras" onclick="cerrarExito()" class="w-full bg-slate-100 text-slate-500 py-3 rounded-2xl font-bold uppercase text-[10px]">Cerrar</button>
             </div>
         </div>
     </div>
@@ -134,20 +146,31 @@
         <div style="background: #f1ede4; padding: 20px; text-align: center; font-size: 12px; color: #94a3b8; font-weight: bold;">© 2026 Nos reservamos el derecho a invalidar este comprobante si no se cumplen las reglas establecidas.</div>
     </div>
 
-    <div class="fixed bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs px-4">
-        <button id="btn-registrar" disabled onclick="pedirNombre()" class="w-full bg-[#002d72] text-white py-5 rounded-[24px] font-black uppercase text-xs md:text-sm shadow-2xl disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95">Reservar Número</button>
+    <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs px-4">
+        <button id="btn-registrar" disabled onclick="pedirNombre()" class="w-full bg-[#002d72] text-white py-5 rounded-[24px] font-black uppercase text-xs shadow-2xl disabled:opacity-30 transition-all active:scale-95">Reservar Número</button>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdALyt2BfMCvtkkByTV2z2qjxcuTe4wnI3_s_STZknO_zLCPQ7edRKCtW5AjL6M-kG/exec";
-        let lang = 'es', elegido = null, registrosCache = {}, esModoAdmin = false;
+        const firebaseConfig = {
+            apiKey: "AIzaSyCbqIqn0eXyDUivyIxBqAfctC6rQz2R4nc",
+            authDomain: "rifas-del-pueblo.firebaseapp.com",
+            databaseURL: "https://rifas-del-pueblo-default-rtdb.firebaseio.com",
+            projectId: "rifas-del-pueblo",
+            storageBucket: "rifas-del-pueblo.firebasestorage.app",
+            appId: "1:185703555080:web:f04d46b4d40ed0c81bb1bd"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        let lang = 'es', elegido = null, esModoAdmin = false, todosLosVendidos = {};
 
         function iniciar(l) {
             lang = l;
             document.getElementById('selector-idioma').classList.add('hidden');
             document.getElementById('asistente-contenedor').className = "pos-busqueda";
-            document.getElementById('texto-asistente').innerText = (lang === 'es' ? "Busca tu número aquí abajo" : "Kaaxat a xook");
-            generarGrid(); cargarOcupados();
+            document.getElementById('texto-asistente').innerText = (lang === 'es' ? "Busca tu número" : "Kaaxat a xook");
+            generarGrid();
+            escucharVentas();
         }
 
         function generarGrid() {
@@ -157,22 +180,78 @@
                 d.id = 'num-' + n; d.className = 'numero shadow-sm'; d.innerText = n;
                 d.onclick = () => {
                     if(d.classList.contains('ocupado')) return;
-                    if(elegido) { const ant = document.getElementById('num-'+elegido); if(ant) ant.classList.remove('seleccionado'); }
+                    if(elegido) document.getElementById('num-'+elegido)?.classList.remove('seleccionado');
                     elegido = n; d.classList.add('seleccionado'); document.getElementById('btn-registrar').disabled = false;
                 };
                 grid.appendChild(d);
             }
         }
 
+        function escucharVentas() {
+            db.ref('boletos').on('value', (snapshot) => {
+                todosLosVendidos = snapshot.val() || {};
+                Object.keys(todosLosVendidos).forEach(num => {
+                    const el = document.getElementById('num-' + num);
+                    if (el) el.classList.add('ocupado');
+                });
+                actualizarListaAdmin();
+            });
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('btn-' + tabId).classList.add('active');
+        }
+
+        function actualizarListaAdmin() {
+            const container = document.getElementById('lista-participantes');
+            container.innerHTML = '';
+            Object.keys(todosLosVendidos).sort().forEach(num => {
+                const div = document.createElement('div');
+                div.className = "flex justify-between items-center bg-slate-50 p-3 rounded-2xl border mb-2 text-[11px] font-bold";
+                div.innerHTML = `<div><span class="text-orange-500 mr-2">${num}</span> ${todosLosVendidos[num].nombre}</div>
+                                <button onclick="prepararYMostrarBoleto('${num}', '${todosLosVendidos[num].nombre}', true)" class="bg-blue-900 text-white px-3 py-1 rounded-lg uppercase">Ver</button>`;
+                container.appendChild(div);
+            });
+        }
+
+        function filtrarListaAdmin() {
+            const f = document.getElementById('filtro-lista').value.toLowerCase();
+            document.querySelectorAll('#lista-participantes > div').forEach(div => {
+                div.style.display = div.innerText.toLowerCase().includes(f) ? 'flex' : 'none';
+            });
+        }
+
+        function iniciarSorteoAnimado() {
+            const vendidos = Object.keys(todosLosVendidos);
+            if (vendidos.length === 0) return alert("¡No hay boletos vendidos aún!");
+            
+            let i = 0;
+            const display = document.getElementById('display-sorteo');
+            const btn = document.getElementById('btn-sortear');
+            btn.disabled = true;
+
+            const intervalo = setInterval(() => {
+                display.innerText = vendidos[Math.floor(Math.random() * vendidos.length)];
+                display.style.color = "#" + Math.floor(Math.random()*16777215).toString(16);
+                i++;
+                if (i > 30) {
+                    clearInterval(intervalo);
+                    const ganadorNum = vendidos[Math.floor(Math.random() * vendidos.length)];
+                    display.innerText = ganadorNum;
+                    display.style.color = "#ff6b00";
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                    btn.disabled = false;
+                    setTimeout(() => alert("GANADOR: " + ganadorNum + " - " + todosLosVendidos[ganadorNum].nombre), 500);
+                }
+            }, 100);
+        }
+
         function ejecutarBusqueda() {
             let val = document.getElementById('buscador').value.replace(/\D/g, '').padStart(3, '0');
-            const el = document.getElementById('num-' + val);
-            if (el) { 
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-                el.style.borderColor = "#ff6b00";
-                el.style.borderWidth = "4px";
-                setTimeout(() => { el.style.borderWidth = "2px"; }, 2000);
-            }
+            document.getElementById('num-' + val)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         function elegirAlAzar() {
@@ -184,93 +263,50 @@
 
         function pedirNombre() {
             document.getElementById('asistente-contenedor').className = "pos-centro";
-            document.getElementById('texto-asistente').innerText = (lang === 'es' ? "Escribe tu nombre" : "Ts'íibta a k'aaba'");
             document.getElementById('form-nombre').classList.remove('hidden');
         }
 
         async function confirmarTodo() {
-    const nomInput = document.getElementById('nombre-input');
-    const nom = nomInput.value.trim(); 
-    
-    // Validación: Divide el texto por espacios y filtra elementos vacíos
-    // Requiere al menos 3 elementos (palabras)
-    const palabras = nom.split(/\s+/).filter(palabra => palabra.length > 0);
-    
-    if (palabras.length < 3) {
-        // Feedback visual si el nombre está incompleto
-        const msgError = (lang === 'es' ? "Escribe tu nombre y dos apellidos" : "Ts'íibta a k'aaba' yéetel ka'atúul apellidos");
-        document.getElementById('texto-asistente').innerText = msgError;
-        document.getElementById('texto-asistente').style.color = "red";
-        nomInput.style.borderColor = "red";
-        
-        setTimeout(() => { 
-            document.getElementById('texto-asistente').innerText = (lang === 'es' ? "Escribe tu nombre completo" : "Ts'íibta a k'aaba'");
-            document.getElementById('texto-asistente').style.color = "";
-            nomInput.style.borderColor = "";
-        }, 3000);
-        return;
-    }
-
-    if(!nom || !elegido) return;
-
-    // Si pasa la validación, procede con el registro
-    try {
-        fetch(SCRIPT_URL + "?numero=" + elegido + "&nombre=" + encodeURIComponent(nom) + "&estado=Vendido", { 
-            method: 'POST', 
-            mode: 'no-cors' 
-        });
-    } catch (e) {
-        console.error("Error al registrar:", e);
-    }
-    
-    prepararYMostrarBoleto(elegido, nom, false);
-}
-
-        function cerrarExito() {
-            document.getElementById('modal-exito').classList.add('hidden');
-            if (esModoAdmin) document.getElementById('modal-admin').classList.remove('hidden');
+            const nom = document.getElementById('nombre-input').value.trim();
+            if (nom.split(/\s+/).filter(p => p.length > 0).length < 3) return alert("Nombre y dos apellidos por favor");
+            try {
+                await db.ref('boletos/' + elegido).set({ nombre: nom, fecha: new Date().toLocaleString() });
+                prepararYMostrarBoleto(elegido, nom, false);
+            } catch (e) { alert("Error al guardar"); }
         }
 
         function prepararYMostrarBoleto(num, nom, desdeAdmin = false) {
             esModoAdmin = desdeAdmin;
             document.getElementById('ticket-numero').innerText = num;
             document.getElementById('ticket-nombre').innerText = nom.toUpperCase();
+            document.getElementById('exito-titulo').innerText = esModoAdmin ? "Boleto Generado" : "¡Felicidades!";
+            document.getElementById('btn-accion-final').innerText = esModoAdmin ? "DESCARGAR BOLETO" : "DESCARGAR Y ENVIAR";
             
-            const btnAccion = document.getElementById('btn-accion-final');
-            const btnVolver = document.getElementById('btn-volver-atras');
-
-            if (esModoAdmin) {
-                btnAccion.innerText = "DESCARGAR BOLETO";
-                document.getElementById('exito-titulo').innerText = "Boleto Generado";
-                btnVolver.classList.remove('hidden');
-                document.getElementById('modal-admin').classList.add('hidden');
-            } else {
-                btnAccion.innerText = "DESCARGAR Y ENVIAR";
-                document.getElementById('exito-titulo').innerText = "¡Casi listo!";
-                btnVolver.classList.add('hidden');
-            }
-
             setTimeout(() => {
                 html2canvas(document.querySelector("#boleto-render"), {scale: 2, backgroundColor: "#fdfbf7"}).then(canvas => {
                     document.getElementById('preview-boleto').innerHTML = `<img src="${canvas.toDataURL()}" class="w-full h-auto">`;
                     document.getElementById('modal-exito').classList.remove('hidden');
+                    if(esModoAdmin) document.getElementById('modal-admin').classList.add('hidden');
                 });
             }, 600);
         }
 
         function descargarYRedirigir() {
-            const nomActual = document.getElementById('ticket-nombre').innerText.replace(/\s+/g, '_');
             const link = document.createElement('a');
-            link.download = `Boleto_${nomActual}.png`;
+            link.download = `Boleto_Rifa.png`;
             link.href = document.querySelector("#preview-boleto img").src;
             link.click();
             if (!esModoAdmin) {
                 setTimeout(() => {
-                    const nom = document.getElementById('nombre-input').value || "CLIENTE";
-                    const num = elegido || "S/N";
-                    window.location.href = "https://m.me/168173419701763?text=" + encodeURIComponent("¡Hola! Ya descargué mi boleto. Soy " + nom + " con el número " + num);
+                    const msj = encodeURIComponent("¡Hola! Reservé mi número " + elegido);
+                    window.location.href = "https://m.me/168173419701763?text=" + msj;
                 }, 1200);
             }
+        }
+
+        function cerrarExito() {
+            document.getElementById('modal-exito').classList.add('hidden');
+            if (esModoAdmin) document.getElementById('modal-admin').classList.remove('hidden');
         }
 
         function generarAdminTicket() {
@@ -278,65 +314,6 @@
             const nom = document.getElementById('admin-nom').value.trim();
             if(num && nom) prepararYMostrarBoleto(num, nom, true);
         }
-
-        async function recuperarTodosLosBoletos() {
-            const btn = document.getElementById('btn-recuperar'); btn.innerText = "⏳...";
-            try {
-                const res = await fetch(SCRIPT_URL); const data = await res.json();
-                registrosCache = data.reduce((acc, item) => {
-                    if (item.estado.toLowerCase() === "vendido") {
-                        const n = item.nombre.trim().toUpperCase();
-                        if (!acc[n]) acc[n] = []; acc[n].push(String(item.numero).padStart(3, '0'));
-                    } return acc;
-                }, {});
-                renderizarListaFiltrada('');
-                document.getElementById('lista-recuperacion').classList.remove('hidden');
-                document.getElementById('btn-descargar-todos').classList.remove('hidden');
-                btn.innerText = "OK";
-            } catch (e) { btn.innerText = "❌"; }
-        }
-
-        function filtrarListaRecuperacion() { renderizarListaFiltrada(document.getElementById('input-busqueda-admin').value.toUpperCase()); }
-
-        function renderizarListaFiltrada(filtro) {
-            const lista = document.getElementById('lista-recuperacion'); lista.innerHTML = '';
-            Object.keys(registrosCache).forEach(n => {
-                if (n.includes(filtro)) {
-                    const nums = registrosCache[n].join(" - ");
-                    const div = document.createElement('div');
-                    div.className = "flex justify-between items-center bg-slate-50 p-3 rounded-xl border text-[10px] font-bold";
-                    div.innerHTML = `<div><p class="text-blue-900">${n}</p><p class="text-orange-600">${nums}</p></div>
-                        <button onclick="prepararYMostrarBoleto('${nums}', '${n}', true)" class="bg-blue-900 text-white px-3 py-2 rounded-lg">Ver</button>`;
-                    lista.appendChild(div);
-                }
-            });
-        }
-
-        async function descargarTodosLosBoletos() {
-            const btn = document.getElementById('btn-descargar-todos'); btn.innerText = "⏳...";
-            const nombres = Object.keys(registrosCache);
-            for (const n of nombres) {
-                document.getElementById('ticket-numero').innerText = registrosCache[n].join(" - ");
-                document.getElementById('ticket-nombre').innerText = n;
-                const canvas = await html2canvas(document.querySelector("#boleto-render"), {scale: 2});
-                const link = document.createElement('a');
-                link.download = `Boleto_${n.replace(/\s+/g, '_')}.png`; link.href = canvas.toDataURL();
-                link.click();
-                await new Promise(r => setTimeout(r, 800));
-            }
-            btn.innerText = "Listo";
-        }
-
-        async function cargarOcupados() {
-            try {
-                const res = await fetch(SCRIPT_URL); const data = await res.json();
-                data.forEach(item => {
-                    const el = document.getElementById('num-' + String(item.numero).padStart(3, '0'));
-                    if (el && item.estado.toLowerCase() === "vendido") el.classList.add('ocupado');
-                });
-            } catch(e) {}
-        }
     </script>
 </body>
 </html>
-
