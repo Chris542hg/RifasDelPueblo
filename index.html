@@ -30,11 +30,16 @@
         }
         .animar-ganador { 
             animation: victoria 0.8s ease-out forwards; 
-            font-size: 50px !important; 
+            font-size: clamp(24px, 8vw, 50px) !important; 
             color: #fbbf24 !important; 
             text-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
             display: block;
             margin-top: 20px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.1;
+            width: 100%;
+            padding: 0 10px;
         }
     </style>
 </head>
@@ -399,3 +404,4 @@
     </script>
 </body>
 </html>
+
