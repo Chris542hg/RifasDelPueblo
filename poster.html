@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡AYAYAYYYY! - Sorteo Smart TV</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Oswald:wght@700&display=swap');
+
+        :root {
+            --amarillo: #fff200;
+            --rojo: #ed1c24;
+            --azul: #002d72;
+            --negro: #000000;
+        }
+
+        /* --- ANIMACIONES --- */
+        @keyframes pulse-btn {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes float-tv {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes flash-text {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; text-shadow: 0 0 15px white; }
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0a0a0a;
+            font-family: 'Oswald', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .poster {
+            width: 95%;
+            max-width: 500px;
+            background: var(--amarillo);
+            border: 12px solid var(--negro);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .top-shout {
+            background: var(--rojo);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 3rem;
+            font-family: 'Archivo Black', sans-serif;
+            line-height: 1;
+            border-bottom: 6px solid var(--negro);
+            text-shadow: 4px 4px 0 var(--negro);
+            animation: flash-text 2s infinite ease-in-out;
+        }
+
+        .header-content {
+            padding: 15px 15px 0 15px;
+            text-align: center;
+        }
+
+        .sub-main {
+            font-size: 2.2rem;
+            line-height: 1;
+            color: var(--azul);
+            margin: 0;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .tv-area {
+            position: relative;
+            margin: -5px 0;
+            display: flex;
+            justify-content: center;
+            animation: float-tv 4s infinite ease-in-out;
+        }
+
+        .tv-image {
+            width: 85%;
+            z-index: 2;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.4));
+        }
+
+        .middle-text {
+            background: var(--negro);
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .middle-text p {
+            margin: 0;
+            font-size: 1.3rem;
+            line-height: 1.2;
+        }
+
+        .highlight-yellow {
+            color: var(--amarillo);
+            font-weight: bold;
+        }
+
+        .cta-section {
+            padding: 20px 15px;
+            text-align: center;
+            background: white;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .rumor-text {
+            font-size: 1.4rem;
+            color: var(--negro);
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .btn-la-quiero {
+            background: var(--rojo);
+            color: white;
+            border: none;
+            padding: 15px 45px;
+            font-size: 2.8rem;
+            font-family: 'Archivo Black', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 10px 0 #800000;
+            transition: 0.1s;
+            width: 90%;
+            border-radius: 8px;
+            animation: pulse-btn 1.5s infinite ease-in-out;
+        }
+
+        .btn-la-quiero:active {
+            transform: translateY(6px);
+            box-shadow: 0 4px 0 #800000;
+        }
+
+        .click-aqui {
+            display: block;
+            margin-top: 12px;
+            color: var(--azul);
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            text-decoration: none;
+            padding: 2px 8px;
+            font-size: 10px;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="poster">
+        <a href="index.html" class="btn-volver">VOLVER</a>
+        
+        <div class="top-shout">¡AYAYAYYYY!</div>
+
+        <div class="header-content">
+            <h1 class="sub-main">¿AMAS EL CHISME VERDAD?</h1>
+        </div>
+
+        <div class="tv-area">
+            <img src="tv-hisense.png" alt="Smart TV" class="tv-image">
+        </div>
+
+        <div class="middle-text">
+            <p>NOSOTROS TAMBIÉN, PERO ESTO <span class="highlight-yellow">NO ES CHISME...</span></p>
+            <p style="font-size: 1.6rem; font-weight: 900;">¡ESTAMOS REGALANDO ESTA TV!</p>
+        </div>
+
+        <div class="cta-section">
+            <div class="rumor-text">EL RUMOR ES CIERTO. NO TE QUEDES FUERA.</div>
+            <button class="btn-la-quiero" onclick="irAlLink()">LA QUIERO</button>
+            <span class="click-aqui">DA CLIC AQUÍ PARA QUE SEA TUYA</span>
+        </div>
+    </div>
+
+    <script>
+        function irAlLink() {
+            window.location.href = "https://www.facebook.com/permalink.php?story_fbid=122278078130069049&id=61552071488102&ref=embed_post";
+        }
+    </script>
+</body>
+</html>
