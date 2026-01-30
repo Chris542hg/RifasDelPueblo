@@ -22,15 +22,15 @@
         #asistente-contenedor { position: fixed; z-index: 100; transition: 0.6s; }
         .pos-inicio { bottom: 50%; left: 50%; transform: translate(-50%, 50%); width: 90%; max-width: 400px; }
         .pos-busqueda { bottom: 20px; left: 20px; transform: scale(0.8); width: 280px; transform-origin: bottom left; }
-                        .pos-centro { bottom: 50%; left: 50%; transform: translate(-50%, 50%); width: 90%; max-width: 400px; }
+        .pos-centro { bottom: 50%; left: 50%; transform: translate(-50%, 50%); width: 90%; max-width: 400px; }
         @keyframes victoria {
             0% { transform: scale(0.5); opacity: 0; }
-            60% { transform: scale(1.2); }
-            100% { transform: scale(1.5); }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
         .animar-ganador { 
             animation: victoria 0.8s ease-out forwards; 
-            font-size: clamp(24px, 8vw, 50px) !important; 
+            font-size: clamp(26px, 7vw, 55px) !important; 
             color: #fbbf24 !important; 
             text-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
             display: block;
@@ -39,13 +39,37 @@
             overflow-wrap: break-word;
             line-height: 1.1;
             width: 100%;
-            padding: 0 10px;
+            padding: 0 15px;
+            font-weight: 900;
         }
     </style>
 </head>
 <body>
     <button onclick="pedirAccesoAdmin()" style="position:fixed; top:0; left:0; width:50px; height:50px; z-index:9999; background:transparent; border:none;"></button>
+
+    <div id="pop-info" class="hidden fixed inset-0 bg-black/70 z-[70000] flex items-center justify-center p-6" onclick="this.classList.add('hidden')">
+        <div class="bg-white rounded-[40px] p-8 max-w-sm w-full text-center border-[6px] border-[#002d72] shadow-2xl" onclick="event.stopPropagation()">
+            <div id="pop-contenido" class="text-slate-700 font-bold"></div>
+            <button onclick="document.getElementById('pop-info').classList.add('hidden')" class="mt-6 bg-red-500 text-white px-8 py-2 rounded-full font-black text-xs uppercase shadow-lg">Cerrar</button>
+        </div>
+    </div>
+
+    <div class="fixed top-6 right-36 z-50">
+        <div class="relative inline-block text-left group">
+            <button class="bg-slate-800 text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg border-2 border-white/20">MÁS ☰</button>
+            <div class="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-2xl shadow-2xl border border-slate-100 hidden group-hover:block overflow-hidden z-[60000]">
+                <div class="py-1">
+                    <button onclick="abrirPop('q')" class="block w-full text-left px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 border-b border-slate-50">¿Quiénes somos?</button>
+                    <button onclick="abrirPop('m')" class="block w-full text-left px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 border-b border-slate-50">Misión</button>
+                    <button onclick="abrirPop('v')" class="block w-full text-left px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 border-b border-slate-50">Visión</button>
+                    <a href="poster.html" class="block w-full text-left px-4 py-3 text-sm font-black text-orange-600 hover:bg-orange-50 italic uppercase">🔥 POSTER</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <a href="https://www.facebook.com/profile.php?id=168173419701763" target="_blank" class="fixed top-6 right-6 z-50 bg-[#1877F2] text-white px-4 py-2 rounded-full font-bold text-sm shadow-lg flex items-center gap-2">Facebook</a>
+
     <div class="logo-container"><img src="logo.png" class="logo-rp"></div>
 
     <main class="max-w-6xl mx-auto px-6">
@@ -116,26 +140,19 @@
         </div>
     </div>
 
-                <div id="boleto-render" style="position:absolute; left:-9999px; top:0; width:600px; min-min-height:600px; background:#fdfbf7; font-family: 'Outfit', sans-serif; box-sizing: border-box; display: flex; flex-direction: column; padding-bottom: 30px;">
+    <div id="boleto-render" style="position:absolute; left:-9999px; top:0; width:600px; min-height:600px; background:#fdfbf7; font-family: 'Outfit', sans-serif; box-sizing: border-box; display: flex; flex-direction: column; padding-bottom: 30px;">
         <div style="background:#002d72; padding:45px 10px; text-align:center;">
             <h2 style="font-size:55px; font-weight:900; color:#ffffff; margin:0; text-transform:uppercase; letter-spacing: 1px;">RIFAS DEL PUEBLO</h2>
             <p style="font-size:22px; font-weight:800; color:#ff6b00; margin:8px 0 0 0; text-transform:uppercase; letter-spacing: 2px;">COMPROBANTE DIGITAL</p>
         </div>
-        
         <div style="flex:1; padding:30px 40px; text-align:center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
             <p style="font-size:22px; font-weight:700; color:#64748b; text-transform:uppercase; margin-bottom: 10px; letter-spacing: 1px;">NÚMERO ASIGNADO</p>
-            
-            <div id="t-num" style="color:#ff6b00; font-weight:900; width: 90%; word-wrap: break-word; line-height: 1.2; display: inline-block; margin: 10px 0; display: block;">051</div>
-            
+            <div id="t-num" style="color:#ff6b00; font-weight:900; width: 90%; word-wrap: break-word; line-height: 1.2; display: inline-block; margin: 10px 0; display: block;">000</div>
             <div style="border-top: 2px dotted #ccc; width:90%; margin: 20px 0;"></div>
-            
-            <p id="t-nom" style="font-size:48px; font-weight:900; color:#0f172a; text-transform:uppercase; margin: 5px 0; line-height: 1;">ADRI TUT</p>
-            
+            <p id="t-nom" style="font-size:48px; font-weight:900; color:#0f172a; text-transform:uppercase; margin: 5px 0; line-height: 1;">NOMBRE</p>
             <div style="border-top: 2px dotted #ccc; width:90%; margin: 20px 0;"></div>
-            
             <p style="font-size:28px; font-weight:800; color:#0ea5e9; margin:0; text-transform: none;">Sorteo: Smart TV Hisense 50"</p>
         </div>
-        
         <div style="background:#f1f1e6; padding:25px 40px; text-align:center; margin-top: auto;">
             <p style="font-size:15px; font-weight:600; color:#94a3b8; margin:0; line-height: 1.4;">Nos reservamos el derecho de invalidar este comprobante si no se cumplen las reglas establecidas. 2026</p>
         </div>
@@ -158,6 +175,15 @@
     </div>
 
     <script>
+        function abrirPop(t) {
+            var c = "";
+            if(t==='q') c = "<h3 class='font-black text-2xl text-[#002d72] mb-3'>NOSOTROS</h3><p class='font-bold'>Somos una organización dedicada a crear oportunidades a través de sorteos transparentes.</p>";
+            if(t==='m') c = "<h3 class='font-black text-2xl text-[#002d72] mb-3'>MISIÓN</h3><p class='font-bold'>Llevar alegría y premios de alta calidad a cada hogar con total confianza.</p>";
+            if(t==='v') c = "<h3 class='font-black text-2xl text-[#002d72] mb-3'>VISIÓN</h3><p class='font-bold'>Ser la plataforma de rifas más confiable y querida de la región.</p>";
+            document.getElementById("pop-contenido").innerHTML = c;
+            document.getElementById("pop-info").classList.remove("hidden");
+        }
+
         const firebaseConfig = { apiKey: "AIzaSyCbqIqn0eXyDUivyIxBqAfctC6rQz2R4nc", authDomain: "rifas-del-pueblo.firebaseapp.com", databaseURL: "https://rifas-del-pueblo-default-rtdb.firebaseio.com", projectId: "rifas-del-pueblo", storageBucket: "rifas-del-pueblo.firebasestorage.app", appId: "1:185703555080:web:f04d46b4d40ed0c81bb1bd" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -247,12 +273,10 @@
 
         async function eliminarBoletoIndividual(numero, nombre) {
             if (!confirm(`¿Eliminar solo el boleto ${numero} de ${nombre}?`)) return;
-            try {
-                await db.ref('boletos/' + numero).remove();
-            } catch (e) { console.error(e); }
+            try { await db.ref('boletos/' + numero).remove(); } catch (e) { console.error(e); }
         }
 
-                async function gestGrupo(nombre, aprobar) {
+        async function gestGrupo(nombre, aprobar) {
             if (!aprobar && !confirm("¿Borrar todos los números de " + nombre + "?")) return;
             const updates = {};
             Object.keys(todos).forEach(n => {
@@ -318,28 +342,17 @@
 
         function pedirAccesoAdmin() { if(prompt("Pass:") === "Lechugar1") document.getElementById('modal-admin').classList.remove('hidden'); }
 
-                                function showTicket(nu, no) {
+        function showTicket(nu, no) {
             const tNum = document.getElementById('t-num'), tNom = document.getElementById('t-nom');
             tNum.innerText = nu; tNom.innerText = no;
-            
-            // Lógica de amoldado: reducimos fuente según el largo del texto
             const car = nu.length;
-            if (car < 10) { 
-                tNum.style.fontSize = "130px"; 
-            } else if (car < 80) { 
-                tNum.style.fontSize = "55px"; 
-            } else if (car < 200) { 
-                tNum.style.fontSize = "32px"; 
-            } else { 
-                tNum.style.fontSize = "20px"; 
-            }
+            if (car < 10) tNum.style.fontSize = "130px";
+            else if (car < 80) tNum.style.fontSize = "55px";
+            else if (car < 200) tNum.style.fontSize = "32px";
+            else tNum.style.fontSize = "20px";
 
             setTimeout(() => {
-                html2canvas(document.querySelector("#boleto-render"), { 
-                    scale: 3, 
-                    useCORS: true, 
-                    backgroundColor: "#fdfbf7" 
-                }).then(c => {
+                html2canvas(document.querySelector("#boleto-render"), { scale: 3, useCORS: true, backgroundColor: "#fdfbf7" }).then(c => {
                     document.getElementById('preview-ticket').innerHTML = `<img src="${c.toDataURL()}" class="w-full rounded-2xl shadow-lg">`;
                     document.getElementById('modal-exito').classList.remove('hidden');
                 });
@@ -351,52 +364,29 @@
             setTimeout(()=>window.location.href="https://m.me/168173419701763", 1000);
         }
 
-                                function buscarG() {
+        function buscarG() {
             const nInput = document.getElementById('win-n').value.padStart(3,'0');
-            const b = todos[nInput];
-            const r = document.getElementById('win-res');
-            const display = document.getElementById('win-n');
-            
-            if (!nInput || (nInput === "000" && document.getElementById('win-n').value === "")) {
-                alert("Ingresa un número");
-                return;
-            }
-
+            const b = todos[nInput], r = document.getElementById('win-res'), display = document.getElementById('win-n');
+            if (!nInput || (nInput === "000" && document.getElementById('win-n').value === "")) { alert("Ingresa un número"); return; }
             r.classList.remove('animar-ganador');
-            r.innerText = " BUSCANDO...";
-            r.style.color = "#64748b";
-            r.style.fontSize = "24px";
-            
+            r.innerText = " BUSCANDO..."; r.style.color = "#64748b"; r.style.fontSize = "24px";
             let tiempoTranscurrido = 0;
-            const duracionTotal = 10000; 
-            const intervaloTiempo = 80; 
+            const duracionTotal = 10000, intervaloTiempo = 80; 
 
             const intervalo = setInterval(() => {
                 display.value = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
                 tiempoTranscurrido += intervaloTiempo;
-                
-                if (tiempoTranscurrido > 8000) {
-                    r.innerText = "🔥 ¡ATENTOS! 🔥";
-                    r.style.color = "#ff6b00";
-                }
-
+                if (tiempoTranscurrido > 8000) { r.innerText = "🔥 ¡ATENTOS! 🔥"; r.style.color = "#ff6b00"; }
                 if (tiempoTranscurrido >= duracionTotal) {
                     clearInterval(intervalo);
                     display.value = nInput; 
-                    
                     if(b && b.aprobado) { 
                         r.innerText = "🏆 GANADOR: " + b.nombre; 
                         r.classList.add('animar-ganador');
-                        confetti({
-                            particleCount: 300,
-                            spread: 120,
-                            origin: { y: 0.5 },
-                            zIndex: 40000 
-                        });
+                        confetti({ particleCount: 300, spread: 120, origin: { y: 0.5 }, zIndex: 40000 });
                     } else { 
                         r.innerText = b ? "⚠️FALTA PAGO⚠️" : "❌NO VENDIDO❌"; 
-                        r.style.color = "#ef4444";
-                        r.style.fontSize = "24px";
+                        r.style.color = "#ef4444"; r.style.fontSize = "24px";
                     }
                 }
             }, intervaloTiempo);
@@ -404,4 +394,3 @@
     </script>
 </body>
 </html>
-
