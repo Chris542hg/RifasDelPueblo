@@ -34,6 +34,11 @@
             margin: 20px auto;
             width: 100%;
             overflow: hidden; /* Para asegurar que los elementos absolutely positioned no se salgan */
+            box-sizing: border-box;
+            aspect-ratio: 3/4;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         body::before {
@@ -167,13 +172,25 @@
 
         /* Media query for smaller screens */
         @media (max-width: 600px) {
+            .main-container {
+                padding: 10px;
+            }
+            h1 { font-size: 18px; margin-bottom: 5px; }
+            .price-tag { font-size: 12px; padding: 5px 15px; margin: 5px 0; }
             .grid-container {
-                grid-template-columns: repeat(5, 1fr); /* Adjust grid for smaller screens */
+                grid-template-columns: repeat(10, 1fr); /* Keep 10 columns */
+                gap: 2px;
+                margin: 5px 0;
             }
             .number {
-                width: 35px; /* Smaller number circles */
-                height: 35px;
+                width: auto;
+                height: auto;
+                aspect-ratio: 1;
+                font-size: 8px;
+                border-width: 1px;
             }
+            .alexa-center img { max-width: 60px; }
+            .footer-info { font-size: 9px; margin-top: 5px; }
         }
     </style>
 </head>
@@ -217,7 +234,7 @@
         `;
         grid.appendChild(center);
 
-        // Generar 100 números del 00 al 99
+                // Generar 100 números del 00 al 99
         for (let i = 0; i < 100; i++) {
             const numStr = i.toString().padStart(2, '0');
             const numBtn = document.createElement('div');
@@ -295,7 +312,7 @@
                 });
         }
     )}
-    initRaffle();
+     initRaffle();
 
     document.getElementById('downloadBtn').addEventListener('click', function() {
         html2canvas(document.querySelector(".main-container"), { backgroundColor: null }).then(canvas => {
@@ -308,8 +325,6 @@
 
       window.onload = loadOccupiedNumbers;
 </script>
-
-
 
 </body>
 </html>
