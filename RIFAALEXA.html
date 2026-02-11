@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rifa Alexa - Interactiva</title>
@@ -193,12 +196,20 @@
 
 <button id="downloadBtn" class="download-button">Descargar Interfaz (PNG)</button>
 <script>
+    const PASSWORD = "lechugar1"; // Contraseña para desbloquear cambios
     const grid = document.getElementById('raffleGrid');
     
     // Crear la estructura de la cuadrícula
     function initRaffle() {
         // Insertamos la imagen central primero (posicionada por CSS)
         const center = document.createElement('div');
+
+        // Initialize Firebase
+        const firebaseConfig = { apiKey: "AIzaSyCbqIqn0eXyDUivyIxBqAfctC6rQz2R4nc", authDomain: "rifas-del-pueblo.firebaseapp.com", databaseURL: "https://rifas-del-pueblo-default-rtdb.firebaseio.com", projectId: "rifas-del-pueblo", storageBucket: "rifas-del-pueblo.firebasestorage.app", appId: "1:185703555080:web:f04d46b4d40ed0c81bb1bd" };
+
+
+        firebase.initializeApp(firebaseConfig);
+
         center.className = 'alexa-center';
         center.innerHTML = `
             <img src="alexa.png" alt="Alexa Echo Dot">
@@ -212,27 +223,78 @@
             const numBtn = document.createElement('div');
             numBtn.className = 'number';
             numBtn.innerText = numStr;
-            numBtn.onclick = () => handleSelection(numBtn, numStr);
+            numBtn.onclick = () => handleSelection(numBtn, numStr, numBtn);
             grid.appendChild(numBtn);
         }
     }
 
     function handleSelection(element, num) {
-        if (element.classList.contains('occupied')) return;
-
-        // Primera confirmación
-        const confirm1 = confirm(`¿Deseas seleccionar el número ${num}?`);
-        
-        if (confirm1) {
-            // Segunda confirmación
-            const confirm2 = confirm(`¿Confirmas que el número ${num} ya está pagado/ocupado?\nEsta acción no se puede deshacer.`);
-            
-            if (confirm2) {
-                element.classList.add('occupied');
+        if (element.classList.contains('occupied')) {
+            // Si el número ya está ocupado, preguntar si se quiere liberar
+            const confirmDelete = confirm(`El número ${num} está ocupado. ¿Deseas liberarlo?`);
+            if (confirmDelete) {
+                const password = prompt("Para liberar el número, introduce la contraseña:");
+                if (password === PASSWORD) {
+                    element.classList.remove('occupied');
+                    saveOccupiedNumbers(); // Guardar el estado actualizado
+                } else if (password !== null) { // No mostrar alerta si el usuario presiona "Cancelar"
+                    alert("Contraseña incorrecta. El número no ha sido liberado.");
+                }
             }
+            return; // Terminar la función aquí para números ocupados
         }
+
+         // Solicitar confirmación para ocupar un número, sin contraseña
+         const confirm1 = confirm(`¿Deseas seleccionar el número ${num}?`);
+
+            if (confirm1) {
+                const confirm2 = confirm(`¿Confirmas que el número ${num} ya está pagado/ocupado?`);
+            
+                if (confirm2) {
+                    markNumberAsOccupied(element, num);
+                }
+            }
     }
 
+     // Función para marcar un número como ocupado y actualizar el almacenamiento local
+     function markNumberAsOccupied(element, num) {
+        element.classList.add('occupied');
+        saveOccupiedNumbers(); // Guardar el estado actualizado
+    }
+
+    // Función para guardar los números ocupados en localStorage
+    function saveOccupiedNumbers() {
+         // Obtener la referencia a la base de datos de Firebase
+        const database = firebase.database();
+        const occupiedNumbers = Array.from(document.querySelectorAll('.number.occupied')).map(el => el.innerText);
+
+        // Guardar los números ocupados en Firebase
+        database.ref('BOLETOS RIFA TEMPORAL').set(occupiedNumbers)
+            .then(() => {
+                console.log('Números ocupados guardados en Firebase');
+            })
+            .catch((error) => {
+                console.error('Error al guardar en Firebase:', error);
+            });
+    }
+
+    // Función para cargar los números ocupados desde localStorage
+    function loadOccupiedNumbers() {
+         // Obtener la referencia a la base de datos de Firebase
+        const database = firebase.database();
+
+        // Leer los números ocupados desde Firebase
+        database.ref('BOLETOS RIFA TEMPORAL').once('value')
+            .then((snapshot) => {
+                const occupiedNumbers = snapshot.val() || [];
+                occupiedNumbers.forEach(num => {
+                    const element = Array.from(document.querySelectorAll('.number')).find(el => el.innerText === num);
+                    if (element) {
+                        element.classList.add('occupied');
+                    }
+                });
+        }
+    )}
     initRaffle();
 
     document.getElementById('downloadBtn').addEventListener('click', function() {
@@ -243,7 +305,11 @@
             a.click();
         });
     });
+
+      window.onload = loadOccupiedNumbers;
 </script>
+
+
 
 </body>
 </html>
