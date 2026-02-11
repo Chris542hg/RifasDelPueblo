@@ -19,9 +19,9 @@
         .numero { background: white; border: 2px solid #e2e8f0; border-radius: 16px; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; transition: 0.2s; }
         .numero.ocupado { background: #e2e8f0 !important; color: #94a3b8 !important; cursor: not-allowed; }
         .numero.seleccionado { background: #002d72 !important; color: white !important; border-color: #ff6b00; transform: scale(1.05); }
-        #asistente-contenedor { position: fixed; z-index: 100; transition: 0.6s; }
+        #asistente-contenedor { position: fixed; z-index: 100; transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .pos-inicio { bottom: 50%; left: 50%; transform: translate(-50%, 50%); width: 90%; max-width: 400px; }
-        .pos-busqueda { bottom: 20px; left: 20px; transform: scale(0.8); width: 280px; transform-origin: bottom left; }
+        .pos-busqueda { bottom: 100px; left: 20px; transform: scale(0.75); width: 280px; transform-origin: bottom left; }
         .pos-centro { bottom: 50%; left: 50%; transform: translate(-50%, 50%); width: 90%; max-width: 400px; }
         @keyframes victoria {
             0% { transform: scale(0.5); opacity: 0; }
@@ -42,22 +42,52 @@
             padding: 0 15px;
             font-weight: 900;
         }
+        /* Loader */
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #ff6b00; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Asistente minimizado */
+        .asistente-min { width: 60px !important; height: 60px !important; overflow: hidden; border-radius: 50% !important; padding: 0 !important; cursor: pointer; bottom: 110px !important; left: 50% !important; transform: translateX(-50%) !important; }
+        .asistente-min #texto-asistente, .asistente-min #selector-idioma, .asistente-min #form-nombre { display: none !important; }
+        .asistente-min .dialog-box { display: none !important; }
+        .asistente-min .asist-head { position: static !important; transform: none !important; }
+        .asistente-min img { width: 100% !important; margin: 0 !important; }
+        .asistente-min .btn-close-asist { display: none; }
+        .asistente-min::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; }
     </style>
 </head>
 <body>
-    <button onclick="pedirAccesoAdmin()" style="position:fixed; top:0; left:0; width:50px; height:50px; z-index:9999; background:transparent; border:none;"></button>
+    <button onclick="pedirAccesoAdmin()" style="position:fixed; top:0; left:0; width:50px; height:50px; z-index:100; background:transparent; border:none;"></button>
 
-    <div id="pop-info" class="hidden fixed inset-0 bg-black/70 z-[70000] flex items-center justify-center p-6" onclick="this.classList.add('hidden')">
+    <!-- Modal Sistema (Alertas, Confirm, Prompt) -->
+    <div id="modal-sistema" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-6">
+        <div class="bg-white rounded-[30px] p-8 max-w-sm w-full text-center border-[6px] border-[#002d72] shadow-2xl relative">
+            <h3 id="sys-titulo" class="font-black text-2xl text-[#002d72] mb-4 uppercase">AVISO</h3>
+            <p id="sys-mensaje" class="font-bold text-slate-600 mb-6 text-lg"></p>
+            <div id="sys-input-cont" class="hidden mb-6">
+                <input type="text" id="sys-input" class="w-full p-4 border-4 border-slate-200 rounded-2xl font-bold text-center outline-none focus:border-orange-500 uppercase">
+            </div>
+            <div id="sys-btns" class="flex gap-3 justify-center"></div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="hidden fixed inset-0 bg-black/90 z-[110] flex flex-col items-center justify-center">
+        <div class="loader mb-6"></div>
+        <p class="text-white font-black text-2xl animate-pulse uppercase tracking-widest">Generando Boleto...</p>
+    </div>
+
+    <div id="pop-info" class="hidden fixed inset-0 bg-black/70 z-[90] flex items-center justify-center p-6" onclick="this.classList.add('hidden')">
         <div class="bg-white rounded-[40px] p-8 max-w-sm w-full text-center border-[6px] border-[#002d72] shadow-2xl" onclick="event.stopPropagation()">
             <div id="pop-contenido" class="text-slate-700 font-bold"></div>
             <button onclick="document.getElementById('pop-info').classList.add('hidden')" class="mt-6 bg-red-500 text-white px-8 py-2 rounded-full font-black text-xs uppercase shadow-lg">Cerrar</button>
         </div>
     </div>
 
-    <div class="fixed top-6 right-36 z-50">
+    <div class="fixed top-20 right-6 z-40">
         <div class="relative inline-block text-left group">
             <button class="bg-slate-800 text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg border-2 border-white/20">MÁS ☰</button>
-            <div class="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-2xl shadow-2xl border border-slate-100 hidden group-hover:block overflow-hidden z-[60000]">
+            <div class="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-2xl shadow-2xl border border-slate-100 hidden group-hover:block overflow-hidden z-[45]">
                 <div class="py-1">
                     <button onclick="abrirPop('q')" class="block w-full text-left px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 border-b border-slate-50">¿Quiénes somos?</button>
                     <button onclick="abrirPop('m')" class="block w-full text-left px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 border-b border-slate-50">Misión</button>
@@ -68,9 +98,9 @@
         </div>
     </div>
 
-    <a href="https://www.facebook.com/profile.php?id=168173419701763" target="_blank" class="fixed top-6 right-6 z-50 bg-[#1877F2] text-white px-4 py-2 rounded-full font-bold text-sm shadow-lg flex items-center gap-2">Facebook</a>
+    <a href="https://www.facebook.com/profile.php?id=168173419701763" target="_blank" class="fixed top-6 right-6 z-40 bg-[#1877F2] text-white px-4 py-2 rounded-full font-bold text-sm shadow-lg flex items-center gap-2">Facebook</a>
 
-    <div class="logo-container"><img src="logo.png" class="logo-rp"></div>
+    <div class="logo-container z-40"><img src="logo.png" class="logo-rp"></div>
 
     <main class="max-w-6xl mx-auto px-6">
         <div class="hero-card p-8 md:p-12 text-white flex flex-col md:flex-row items-center gap-6">
@@ -78,8 +108,8 @@
                 <div style="background-color: #d92b21; color: white; display: inline-block; padding: 4px 20px; border-radius: 50px; font-size: 1rem; margin-bottom: 15px; font-weight: 900; text-transform: uppercase;">
                     SORTEO ESPECIAL 2026
                 </div>
-                <h1 style="font-size: 4rem; line-height: 0.85; margin: 0; font-weight: 900; text-transform: uppercase;">Smart TV<br>Hisense</h1>
-                <p style="color: #4db8ff; font-size: 4.5rem; line-height: 1; margin: 0; font-weight: 900; text-transform: uppercase;">Full HD 50"</p>
+                <h1 class="text-5xl sm:text-6xl md:text-7xl font-black uppercase leading-none mb-2">Smart TV<br>Hisense</h1>
+                <p class="text-4xl sm:text-5xl md:text-6xl font-black uppercase leading-none text-[#4db8ff]">Full HD 50"</p>
             </div>
             <img src="tv-hisense.png" class="w-80 drop-shadow-2xl">
         </div>
@@ -93,22 +123,25 @@
         <div id="grid-numeros" class="grid grid-cols-4 sm:grid-cols-8 md:grid-cols-10 gap-2 p-4 bg-white/50 rounded-[30px] border-4 border-white shadow-lg"></div>
     </main>
 
-    <div id="asistente-contenedor" class="pos-inicio">
-        <div class="bg-white p-8 rounded-[40px] border-[6px] border-sky-400 shadow-2xl">
+    <div id="asistente-contenedor" class="pos-inicio z-30">
+        <div class="asist-head absolute -top-12 left-1/2 -translate-x-1/2 z-20" onclick="toggleAsistente()">
+            <img src="asist.png" class="w-24 drop-shadow-lg">
+        </div>
+        <div class="dialog-box bg-white p-8 pt-16 rounded-[40px] border-[6px] border-sky-400 shadow-2xl relative z-10">
+            <button onclick="toggleAsistente()" class="btn-close-asist absolute top-2 right-4 text-sky-300 font-black text-xl hover:text-sky-600 transition">_</button>
             <p id="texto-asistente" class="text-sm font-black text-center mb-6 uppercase">¡Bienvenido!¿En qué idioma puedo ayudarte?</p>
             <div id="selector-idioma" class="flex flex-col gap-3">
                 <button onclick="iniciar('es')" class="bg-[#002d72] text-white py-4 rounded-2xl font-black uppercase">Español</button>
                 <button onclick="iniciar('maya')" class="bg-slate-100 py-4 rounded-2xl font-black uppercase">Maya</button>
             </div>
             <div id="form-nombre" class="hidden space-y-4">
-                <input type="text" id="nombre-input" placeholder="NOMBRE COMPLETO" oninput="this.value = this.value.toUpperCase()" class="w-full p-4 border-4 rounded-2xl text-center font-black outline-none focus:border-orange-500">
+                <input type="text" id="nombre-input" placeholder="NOMBRE Y 2 APELLIDOS" oninput="this.value = this.value.toUpperCase()" class="w-full p-4 border-4 rounded-2xl text-center font-black outline-none focus:border-orange-500">
                 <button onclick="confirmarTodo()" class="w-full bg-[#ff6b00] text-white py-4 rounded-2xl font-black uppercase">Confirmar</button>
             </div>
         </div>
-        <div class="flex justify-center -mt-6"><img src="asist.png" class="w-24"></div>
     </div>
 
-    <div id="modal-admin" class="hidden fixed inset-0 bg-white z-[10000] flex flex-col">
+    <div id="modal-admin" class="hidden fixed inset-0 bg-white z-[90] flex flex-col">
         <div class="p-6 flex justify-between items-center border-b">
             <h2 class="font-black italic">PANEL DE ADMINISTRADOR</h2>
             <div class="flex gap-4 items-center">
@@ -133,7 +166,7 @@
         </div>
     </div>
 
-    <div id="modal-exito" class="hidden fixed inset-0 bg-black/95 z-[20000] flex items-center justify-center p-6 text-center">
+    <div id="modal-exito" class="hidden fixed inset-0 bg-black/95 z-[90] flex items-center justify-center p-6 text-center">
         <div class="bg-white rounded-[40px] p-6 w-full max-w-sm">
             <div id="preview-ticket" class="mb-6 rounded-2xl overflow-hidden border"></div>
             <button onclick="descargarYRedirigir()" class="w-full bg-[#ff6b00] text-white py-6 rounded-3xl font-black uppercase shadow-xl">Descargar y Enviar</button>
@@ -158,11 +191,11 @@
         </div>
     </div>
 
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-6">
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-sm px-6">
         <button id="btn-registrar" disabled onclick="pedirNom()" class="w-full bg-[#002d72] text-white py-6 rounded-[30px] font-black uppercase shadow-2xl disabled:opacity-30">RESERVAR NÚMERO</button>
     </div>
 
-    <div id="modal-azar" class="hidden fixed inset-0 bg-black/60 z-[30000] flex items-center justify-center p-4">
+    <div id="modal-azar" class="hidden fixed inset-0 bg-black/60 z-[90] flex items-center justify-center p-4">
         <div class="bg-white rounded-[40px] p-8 w-full max-w-sm text-center border-[6px] border-[#002d72] shadow-2xl">
             <h3 class="font-black text-2xl mb-2 uppercase text-[#002d72]">¡RULETA!</h3>
             <p class="text-slate-500 font-bold mb-6 text-sm uppercase">¿Cuántos números quieres?</p>
@@ -175,6 +208,41 @@
     </div>
 
     <script>
+        // --- SISTEMA DE ALERTAS PERSONALIZADO ---
+        function cerrarModalSistema() { document.getElementById('modal-sistema').classList.add('hidden'); }
+        
+        function mostrarAlerta(msg) {
+            document.getElementById('sys-titulo').innerText = "AVISO";
+            document.getElementById('sys-mensaje').innerText = msg;
+            document.getElementById('sys-input-cont').classList.add('hidden');
+            document.getElementById('sys-btns').innerHTML = `<button onclick="cerrarModalSistema()" class="bg-[#002d72] text-white px-8 py-3 rounded-xl font-black uppercase">Entendido</button>`;
+            document.getElementById('modal-sistema').classList.remove('hidden');
+        }
+
+        function mostrarConfirm(msg, callback) {
+            document.getElementById('sys-titulo').innerText = "CONFIRMAR";
+            document.getElementById('sys-mensaje').innerText = msg;
+            document.getElementById('sys-input-cont').classList.add('hidden');
+            const btns = document.getElementById('sys-btns');
+            btns.innerHTML = '';
+            const btnSi = document.createElement('button'); btnSi.className = "bg-green-500 text-white px-6 py-3 rounded-xl font-black uppercase"; btnSi.innerText = "SÍ";
+            btnSi.onclick = () => { cerrarModalSistema(); callback(); };
+            const btnNo = document.createElement('button'); btnNo.className = "bg-red-500 text-white px-6 py-3 rounded-xl font-black uppercase"; btnNo.innerText = "NO";
+            btnNo.onclick = cerrarModalSistema;
+            btns.append(btnNo, btnSi);
+            document.getElementById('modal-sistema').classList.remove('hidden');
+        }
+
+        function mostrarPrompt(msg, callback) {
+            document.getElementById('sys-titulo').innerText = "INGRESAR DATOS";
+            document.getElementById('sys-mensaje').innerText = msg;
+            const inpCont = document.getElementById('sys-input-cont'); inpCont.classList.remove('hidden');
+            const inp = document.getElementById('sys-input'); inp.value = ''; inp.focus();
+            document.getElementById('sys-btns').innerHTML = `<button id="btn-prompt-ok" class="bg-[#002d72] text-white px-8 py-3 rounded-xl font-black uppercase">Aceptar</button>`;
+            document.getElementById('btn-prompt-ok').onclick = () => { cerrarModalSistema(); callback(inp.value); };
+            document.getElementById('modal-sistema').classList.remove('hidden');
+        }
+
         function abrirPop(t) {
             var c = "";
             if(t==='q') c = "<h3 class='font-black text-2xl text-[#002d72] mb-3'>NOSOTROS</h3><p class='font-bold'>Somos una organización dedicada a crear oportunidades a través de sorteos transparentes.</p>";
@@ -192,10 +260,17 @@
         function iniciar(l) {
             lang = l;
             document.getElementById('selector-idioma').classList.add('hidden');
+            document.getElementById('form-nombre').classList.add('hidden');
             document.getElementById('asistente-contenedor').className = "pos-busqueda";
-            document.getElementById('texto-asistente').innerText = lang==='es'?"Busca tus números":"Kaaxat a xook";
+            document.getElementById('texto-asistente').innerText = lang==='es'?"Busca tu número favorito aquí abajo 👇":"Kaaxat a xook";
             genGrid();
             escVentas();
+        }
+
+        function toggleAsistente() {
+            const a = document.getElementById('asistente-contenedor');
+            if(a.classList.contains('asistente-min')) a.classList.remove('asistente-min');
+            else a.classList.add('asistente-min');
         }
 
         function genGrid() {
@@ -231,9 +306,9 @@
         function procesarAzarPropio() {
             const input = document.getElementById('input-cantidad-azar');
             let c = parseInt(input.value);
-            if (!c || c <= 0) return alert("Ingresa una cantidad válida");
+            if (!c || c <= 0) return mostrarAlerta("Ingresa una cantidad válida");
             let disp = Array.from(document.querySelectorAll('.numero:not(.ocupado):not(.seleccionado)'));
-            if (c > disp.length) { alert("Solo quedan " + disp.length + " disponibles"); c = disp.length; }
+            if (c > disp.length) { mostrarAlerta("Solo quedan " + disp.length + " disponibles"); c = disp.length; }
             for(let i=0; i < c && disp.length > 0; i++) {
                 let r = Math.floor(Math.random() * disp.length);
                 tog(disp.splice(r,1)[0].innerText);
@@ -248,13 +323,21 @@
 
         function pedirNom() {
             document.getElementById('asistente-contenedor').className = "pos-centro";
+            document.getElementById('texto-asistente').innerText = lang === 'es' ? "¡Excelente! Ingresa tus datos 👇" : "Ts'íib a k'aaba'";
             document.getElementById('form-nombre').classList.remove('hidden');
         }
 
         async function confirmarTodo() {
             const n = document.getElementById('nombre-input').value.trim();
             const palabras = n.split(/\s+/).filter(p => p.length > 0);
-            if(palabras.length < 3) { alert("Ingresa NOMBRE y DOS APELLIDOS."); return; }
+            if(palabras.length < 3) { 
+                const inp = document.getElementById('nombre-input');
+                inp.classList.add('border-red-500', 'bg-red-50');
+                setTimeout(() => {
+                    inp.classList.remove('border-red-500', 'bg-red-50');
+                }, 2000);
+                return; 
+            }
             await Promise.all(seleccionados.map(num => db.ref('boletos/'+num).set({nombre:n, aprobado:false})));
             showTicket(seleccionados.sort().join(", "), n);
         }
@@ -334,13 +417,17 @@
         }
 
         async function resetearBaseDeDatos() {
-            if (confirm("¿ESTÁS SEGURO?") && prompt("Escribe: BORRAR") === "BORRAR") {
-                await db.ref('boletos').remove();
-                location.reload();
-            }
+            mostrarConfirm("¿ESTÁS SEGURO? Se borrará todo.", () => {
+                mostrarPrompt("Escribe: BORRAR", async (val) => {
+                    if (val === "BORRAR") {
+                        await db.ref('boletos').remove();
+                        location.reload();
+                    }
+                });
+            });
         }
 
-        function pedirAccesoAdmin() { if(prompt("Pass:") === "Lechugar1") document.getElementById('modal-admin').classList.remove('hidden'); }
+        function pedirAccesoAdmin() { mostrarPrompt("Contraseña:", (val) => { if(val === "Lechugar1") document.getElementById('modal-admin').classList.remove('hidden'); }); }
 
         function showTicket(nu, no) {
             const tNum = document.getElementById('t-num'), tNom = document.getElementById('t-nom');
@@ -351,9 +438,11 @@
             else if (car < 200) tNum.style.fontSize = "32px";
             else tNum.style.fontSize = "20px";
 
+            document.getElementById('loading-overlay').classList.remove('hidden');
             setTimeout(() => {
                 html2canvas(document.querySelector("#boleto-render"), { scale: 3, useCORS: true, backgroundColor: "#fdfbf7" }).then(c => {
                     document.getElementById('preview-ticket').innerHTML = `<img src="${c.toDataURL()}" class="w-full rounded-2xl shadow-lg">`;
+                    document.getElementById('loading-overlay').classList.add('hidden');
                     document.getElementById('modal-exito').classList.remove('hidden');
                 });
             }, 800);
@@ -367,7 +456,7 @@
         function buscarG() {
             const nInput = document.getElementById('win-n').value.padStart(3,'0');
             const b = todos[nInput], r = document.getElementById('win-res'), display = document.getElementById('win-n');
-            if (!nInput || (nInput === "000" && document.getElementById('win-n').value === "")) { alert("Ingresa un número"); return; }
+            if (!nInput || (nInput === "000" && document.getElementById('win-n').value === "")) { mostrarAlerta("Ingresa un número"); return; }
             r.classList.remove('animar-ganador');
             r.innerText = " BUSCANDO..."; r.style.color = "#64748b"; r.style.fontSize = "24px";
             let tiempoTranscurrido = 0;
@@ -392,5 +481,19 @@
             }, intervaloTiempo);
         }
     </script>
+    <!-- 
+    REGLAS DE SEGURIDAD FIREBASE RECOMENDADAS:
+    {
+      "rules": {
+        ".read": true,
+        "boletos": {
+          ".write": true,
+          "$boleto_id": {
+            ".validate": "newData.child('aprobado').val() === false || !newData.hasChild('aprobado') || auth != null"
+          }
+        }
+      }
+    }
+    -->
 </body>
 </html>
