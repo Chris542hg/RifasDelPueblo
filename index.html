@@ -47,7 +47,17 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         /* Asistente minimizado */
-        .asistente-min { width: 60px !important; height: 60px !important; overflow: hidden; border-radius: 50% !important; padding: 0 !important; cursor: pointer; bottom: 110px !important; left: 50% !important; transform: translateX(-50%) !important; }
+        .asistente-min {
+            width: 60px !important;
+            height: 60px !important;
+            overflow: hidden;
+            border-radius: 50% !important;
+            padding: 0 !important;
+            cursor: pointer;
+            bottom: 110px !important;
+            left: 30px !important;
+            transform: none !important;
+        }
         .asistente-min #texto-asistente, .asistente-min #selector-idioma, .asistente-min #form-nombre { display: none !important; }
         .asistente-min .dialog-box { display: none !important; }
         .asistente-min .asist-head { position: static !important; transform: none !important; }
@@ -273,6 +283,20 @@
             else a.classList.add('asistente-min');
         }
 
+        // Ocultar asistente al abrir/cerrar panel admin
+        const modalAdmin = document.getElementById('modal-admin');
+        if (modalAdmin) {
+            const asistenteCont = document.getElementById('asistente-contenedor');
+            const observer = new MutationObserver(() => {
+                if (modalAdmin.classList.contains('hidden')) {
+                    if (asistenteCont) asistenteCont.style.display = '';
+                } else {
+                    if (asistenteCont) asistenteCont.style.display = 'none';
+                }
+            });
+            observer.observe(modalAdmin, { attributes: true, attributeFilter: ['class'] });
+        }
+
         function genGrid() {
             const g = document.getElementById('grid-numeros');
             g.innerHTML = '';
@@ -449,8 +473,19 @@
         }
 
         function descargarYRedirigir() {
-            const a = document.createElement('a'); a.download = 'Boleto.png'; a.href = document.querySelector("#preview-ticket img").src; a.click();
-            setTimeout(()=>window.location.href="https://m.me/168173419701763", 1000);
+            const a = document.createElement('a');
+            a.download = 'Boleto.png';
+            a.href = document.querySelector("#preview-ticket img").src;
+            a.click();
+
+            // Obtener nombre y números del comprobante
+            const nombre = document.getElementById('t-nom')?.innerText || '';
+            const numeros = document.getElementById('t-num')?.innerText || '';
+            // Mensaje personalizado
+            const mensaje = encodeURIComponent(`Hola, soy ${nombre}, ya aparté mi numero (${numeros}), aquí te envio mi comprobante y la captura de los pasos que segui...`);
+            setTimeout(() => {
+                window.location.href = `https://m.me/168173419701763?text=${mensaje}`;
+            }, 1000);
         }
 
         function buscarG() {
