@@ -66,16 +66,16 @@
         }
 
         .price-tag {
-            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            background: #ffb700;
             color: #002d72;
-            display: inline-block;
-            padding: 8px 30px;
-            border-radius: 16px;
-            font-size: 32px;
+            display: block;
+            width: 95%;
+            padding: 15px 0;
+            border-radius: 15px;
+            font-size: 35px;
             font-weight: 900;
-            margin: 15px 0;
-            box-shadow: 0 4px 15px rgba(255, 165, 0, 0.4);
-            transform: rotate(-2deg);
+            margin: 10px auto;
+            box-shadow: 0 5px 0 #cc9200;
             user-select: none; /* Evita que se seleccione el texto al hacer muchos clicks */
             cursor: context-menu; /* Un cursor sutil */
         }
@@ -96,7 +96,7 @@
             width: 100%;
             aspect-ratio: 1;
             background: white;
-            border-radius: 12px;
+            border-radius: 6px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -105,7 +105,7 @@
             font-size: 18px;
             cursor: pointer;
             transition: 0.2s;
-            border: 2px solid #e2e8f0;
+            border: none;
             user-select: none; /* Prevent text selection */
         }
 
@@ -133,6 +133,8 @@
             justify-content: center;
             align-items: center;
             z-index: 10;
+            text-align: center;
+            color: white;
         }
 
         .product-center img {
@@ -193,7 +195,7 @@
             }
             h1 { font-size: 36px; margin-bottom: 0; }
             h2 { font-size: 16px; margin-top: 0; }
-            .price-tag { font-size: 20px; padding: 5px 20px; margin: 10px 0; border-radius: 10px; }
+            .price-tag { font-size: 24px; padding: 10px 0; margin: 10px auto; border-radius: 10px; }
             .grid-container {
                 gap: 1px;
                 margin: 10px 0;
@@ -244,8 +246,7 @@
 
         center.className = 'product-center';
         center.innerHTML = `
-            <img src="SORTEO.png" alt="Gran Sorteo">
-            <div class="caption">Imágenes representativas</div>
+            <div style="font-size: 12px; font-weight: 900; line-height: 1.2;">IMÁGENES<br>REPRESENTATIVAS</div>
         `;
         grid.appendChild(center);
 
