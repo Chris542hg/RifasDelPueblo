@@ -185,15 +185,15 @@
                 padding: 10px;
             }
             .main-container {
-                padding: 15px;
-                border-width: 5px;
+                padding: 5px;
+                border-width: 4px;
                 border-radius: 25px;
             }
             h1 { font-size: 36px; margin-bottom: 0; }
             h2 { font-size: 16px; margin-top: 0; }
             .price-tag { font-size: 20px; padding: 5px 20px; margin: 10px 0; border-radius: 10px; }
             .grid-container {
-                gap: 4px;
+                gap: 2px;
                 margin: 10px 0;
             }
             .number {
@@ -339,7 +339,10 @@
 
     // --- FUNCIÓN SECRETA: 5 CLICS EN EL PRECIO ---
     let secretClicks = 0;
+    let resetTimer; // Variable para controlar el tiempo
+
     document.querySelector('.price-tag').addEventListener('click', (e) => {
+        clearTimeout(resetTimer); // Limpiar el temporizador anterior al hacer clic
         secretClicks++;
         if (secretClicks === 5) {
             const pwd = prompt("☢️ ZONA PELIGROSA ☢️\nIngresa la contraseña para LIBERAR TODO:");
@@ -352,8 +355,8 @@
             }
             secretClicks = 0;
         }
-        // Si deja de hacer click por medio segundo, el contador se reinicia
-        setTimeout(() => { secretClicks = 0; }, 500);
+        // Si deja de hacer click por 800ms, el contador se reinicia
+        resetTimer = setTimeout(() => { secretClicks = 0; }, 800);
     });
 </script>
 
