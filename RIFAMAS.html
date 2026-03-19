@@ -13,6 +13,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap');
 
         /* General body styles */
+        * { box-sizing: border-box; }
         body {
             font-family: 'Outfit', sans-serif;
             display: flex;
@@ -182,24 +183,26 @@
         /* Media query for smaller screens */
         @media (max-width: 600px) {
             body {
-                padding: 10px;
+                padding: 2px;
             }
             .main-container {
-                padding: 5px;
+                padding: 10px 4px;
                 border-width: 4px;
                 border-radius: 25px;
+                aspect-ratio: auto;
             }
             h1 { font-size: 36px; margin-bottom: 0; }
             h2 { font-size: 16px; margin-top: 0; }
             .price-tag { font-size: 20px; padding: 5px 20px; margin: 10px 0; border-radius: 10px; }
             .grid-container {
-                gap: 2px;
+                gap: 1px;
                 margin: 10px 0;
+                padding: 0;
             }
             .number {
-                font-size: 11px;
+                font-size: 9px;
                 border-width: 1px;
-                border-radius: 6px;
+                border-radius: 4px;
             }
             .product-center img { width: 100%; max-width: 130px; }
             .footer-info { font-size: 12px; margin-top: 10px; }
