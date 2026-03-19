@@ -75,6 +75,8 @@
             margin: 15px 0;
             box-shadow: 0 4px 15px rgba(255, 165, 0, 0.4);
             transform: rotate(-2deg);
+            user-select: none; /* Evita que se seleccione el texto al hacer muchos clicks */
+            cursor: context-menu; /* Un cursor sutil */
         }
 
         .grid-container {
@@ -179,25 +181,28 @@
 
         /* Media query for smaller screens */
         @media (max-width: 600px) {
-            .main-container {
+            body {
                 padding: 10px;
             }
-            h1 { font-size: 18px; margin-bottom: 5px; }
-            .price-tag { font-size: 12px; padding: 5px 15px; margin: 5px 0; }
+            .main-container {
+                padding: 15px;
+                border-width: 5px;
+                border-radius: 25px;
+            }
+            h1 { font-size: 36px; margin-bottom: 0; }
+            h2 { font-size: 16px; margin-top: 0; }
+            .price-tag { font-size: 20px; padding: 5px 20px; margin: 10px 0; border-radius: 10px; }
             .grid-container {
-                grid-template-columns: repeat(10, 1fr); /* Keep 10 columns */
-                gap: 2px;
-                margin: 5px 0;
+                gap: 4px;
+                margin: 10px 0;
             }
             .number {
-                width: auto;
-                height: auto;
-                aspect-ratio: 1;
-                font-size: 8px;
+                font-size: 11px;
                 border-width: 1px;
+                border-radius: 6px;
             }
-            .alexa-center img { max-width: 60px; }
-            .footer-info { font-size: 9px; margin-top: 5px; }
+            .product-center img { width: 100%; max-width: 130px; }
+            .footer-info { font-size: 12px; margin-top: 10px; }
         }
     </style>
 </head>
@@ -322,15 +327,34 @@
      initRaffle();
 
     document.getElementById('downloadBtn').addEventListener('click', function() {
-        html2canvas(document.querySelector(".main-container"), { backgroundColor: null }).then(canvas => {
+        html2canvas(document.querySelector(".main-container"), { backgroundColor: null, scale: 3, useCORS: true }).then(canvas => {
             const a = document.createElement('a');
             a.href = canvas.toDataURL('image/png');
-            a.download = 'rifa-alexa.png';
+            a.download = 'rifa-sorteo.png';
             a.click();
         });
     });
 
       window.onload = loadOccupiedNumbers;
+
+    // --- FUNCIÓN SECRETA: 5 CLICS EN EL PRECIO ---
+    let secretClicks = 0;
+    document.querySelector('.price-tag').addEventListener('click', (e) => {
+        secretClicks++;
+        if (secretClicks === 5) {
+            const pwd = prompt("☢️ ZONA PELIGROSA ☢️\nIngresa la contraseña para LIBERAR TODO:");
+            if (pwd === PASSWORD) {
+                if(confirm("¿Estás 100% seguro? Esto borrará todos los apartados y dejará el tablero limpio.")) {
+                    document.querySelectorAll('.number.occupied').forEach(el => el.classList.remove('occupied'));
+                    saveOccupiedNumbers();
+                    alert("✅ ¡Tablero reseteado con éxito!");
+                }
+            }
+            secretClicks = 0;
+        }
+        // Si deja de hacer click por medio segundo, el contador se reinicia
+        setTimeout(() => { secretClicks = 0; }, 500);
+    });
 </script>
 
 </body>
